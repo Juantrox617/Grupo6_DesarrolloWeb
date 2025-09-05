@@ -2,38 +2,80 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
-function Login() {
-  const [registro, setRegistro] = useState('');
-  const [password, setPassword] = useState('');
+function Register() {
+  const [form, setForm] = useState({
+    registro_academico: '',
+    nombres: '',
+    apellidos: '',
+    correo: '',
+    password: ''
+  });
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/auth/login', {
-        registro_academico: registro,
-        password
-      });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate('/home');
+      await api.post('/auth/register', form);
+      alert('Usuario registrado con éxito');
+      navigate('/');
     } catch (error) {
-      alert('Error: ' + (error.response?.data?.message || 'Credenciales incorrectas'));
+      alert('Error: ' + (error.response?.data?.message || 'No se pudo registrar'));
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Iniciar Sesión</h2>
+        <h2 style={styles.title}>Crear Cuenta</h2>
         <form onSubmit={handleSubmit}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
             <input
+              name="registro_academico"
               type="text"
               placeholder="202400023"
-              value={registro}
-              onChange={(e) => setRegistro(e.target.value)}
+              value={form.registro_academico}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Nombres</label>
+            <input
+              name="nombres"
+              type="text"
+              placeholder="Ana María"
+              value={form.nombres}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Apellidos</label>
+            <input
+              name="apellidos"
+              type="text"
+              placeholder="López González"
+              value={form.apellidos}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            />
+          </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Correo Electrónico</label>
+            <input
+              name="correo"
+              type="email"
+              placeholder="correo@usac.edu.gt"
+              value={form.correo}
+              onChange={handleChange}
               style={styles.input}
               required
             />
@@ -41,22 +83,20 @@ function Login() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
             <input
+              name="password"
               type="password"
               placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={handleChange}
               style={styles.input}
               required
             />
           </div>
-          <button type="submit" style={styles.button}>Iniciar Sesión</button>
+          <button type="submit" style={styles.button}>Crear Cuenta</button>
         </form>
         <p style={styles.text}>
-          ¿No tienes cuenta?{' '}
-          <a href="/register" style={styles.link}>Regístrate</a>
-        </p>
-        <p style={styles.text}>
-          <a href="/forgot-password" style={styles.link}>¿Olvidaste tu contraseña?</a>
+          ¿Ya tienes cuenta?{' '}
+          <a href="/" style={styles.link}>Inicia sesión</a>
         </p>
       </div>
     </div>
@@ -128,4 +168,4 @@ const styles = {
   }
 };
 
-export default Login;
+export default Register;
