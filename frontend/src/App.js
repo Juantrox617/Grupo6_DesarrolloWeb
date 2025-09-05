@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import HomePage from './pages/HomePage';
 
 // Componente para rutas privadas
 const PrivateRoute = ({ children }) => {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/HomePage" element={<HomePage />} />
 
           {/* Rutas privadas */}
           <Route
@@ -36,6 +38,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/HomePage"
+            element={
+              <PrivateRoute>
+                <Home />
               </PrivateRoute>
             }
           />
