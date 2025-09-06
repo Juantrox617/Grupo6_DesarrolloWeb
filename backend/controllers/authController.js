@@ -1,7 +1,6 @@
-const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 
-// Función para el login
+// Función para el login (CON CONTRASEÑAS EN TEXTO PLANO)
 exports.login = async (req, res) => {
   const { carnet, contrasena } = req.body;
 
@@ -12,7 +11,7 @@ exports.login = async (req, res) => {
 
   try {
     // Buscar usuario en la base de datos
-    const rows = await db.query('SELECT * FROM usuario WHERE carnet = ?', [carnet]);
+    const [rows] = await db.query('SELECT * FROM usuario WHERE carnet = ?', [carnet]);
 
     // Si no existe el usuario
     if (rows.length === 0) {
@@ -21,10 +20,8 @@ exports.login = async (req, res) => {
 
     const user = rows[0];
 
-    // Comparar la contraseña que escribió con la que está en la BD
-    const isMatch = await bcrypt.compare(contrasena, user.contrasena);
-
-    if (!isMatch) {
+    // Comparar contraseña en TEXTO PLANO (¡NO SE HACE EN PRODUCCIÓN!)
+    if (contrasena !== user.contrasena) {
       return res.status(401).json({ error: 'Carnet o contraseña incorrectos' });
     }
 
@@ -55,7 +52,7 @@ exports.forgotPassword = async (req, res) => {
   }
 
   try {
-    const rows = await db.query(
+    const [rows] = await db.query(
       'SELECT * FROM usuario WHERE carnet = ? AND correo = ?',
       [carnet, correo]
     );
