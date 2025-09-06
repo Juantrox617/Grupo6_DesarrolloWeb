@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
 import HomePage from './pages/HomePage';
+import NewPublication from './pages/NewPublication';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           {/* Rutas para diseño (accesibles sin login) */}
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/crear-publicacion" element={<NewPublication />} />
         </Routes>
       </div>
     </Router>

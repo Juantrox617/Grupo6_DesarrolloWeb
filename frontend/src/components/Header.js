@@ -1,0 +1,72 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/Kursum-homepage.png';
+
+function Header() {
+  const navigate = useNavigate();
+
+  return (
+    <header style={styles.header}>
+      <img src={logo} alt="Logo Kursum" style={{ width: '250px', cursor: 'pointer' }} onClick={() => navigate('/homepage')} />
+      <nav style={styles.nav}>
+        <a href="/homepage" style={styles.navLink}>Inicio</a>
+        <a
+          href="/profile"
+          onClick={(e) => { e.preventDefault(); navigate('/profile'); }}
+          style={styles.navLink}
+        >
+          Mi perfil
+        </a>
+        <button
+          onClick={() => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            navigate('/');
+          }}
+          style={styles.logoutButton}
+        >
+          Cerrar sesión
+        </button>
+      </nav>
+    </header>
+  );
+}
+
+const styles = {
+  header: {
+    backgroundColor: '#2d6a4f',
+    color: 'white',
+    height: '80px',
+    padding: '0 40px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  },
+  nav: {
+    display: 'flex',
+    gap: '24px',
+    alignItems: 'center',
+  },
+  navLink: {
+    color: '#95d5b2',
+    textDecoration: 'none',
+    fontSize: '18px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'color 0.3s',
+  },
+  logoutButton: {
+    backgroundColor: '#40916c',
+    color: 'white',
+    border: 'none',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    fontSize: '16px',
+    transition: 'background-color 0.3s',
+  },
+};
+
+export default Header;
