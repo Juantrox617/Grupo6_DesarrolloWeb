@@ -1,15 +1,11 @@
-import React from 'react';
+// src/pages/HomePage.js
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const navigate = useNavigate();
-
-  const publicaciones = Array(3).fill(null).map((_, i) => ({
-    id: i + 1,
-    usuario: `Usuario${i + 1}`,
-    fecha: '05/09/2025',
-    contenido: 'Excelente catedrático, explica muy claro y es accesible. Recomendado 100%.'
-  }));
+  const [publicaciones, setPublicaciones] = useState([]); // Inicialmente vacío, se llenará desde el backend
+  const user = JSON.parse(localStorage.getItem('user')); // Obtiene el usuario autenticado
 
   return (
     <div style={styles.container}>
@@ -25,7 +21,11 @@ const HomePage = () => {
             Mi perfil
           </a>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              navigate('/');
+            }}
             style={styles.logoutButton}
           >
             Cerrar sesión
@@ -60,8 +60,14 @@ const HomePage = () => {
 
           <div style={styles.profileSection}>
             <h3 style={styles.profileTitle}>👤 Tu Perfil</h3>
-            <p><strong>Nombre:</strong> Ana López</p>
-            <p><strong>Registro:</strong> 202400023</p>
+            {user ? (
+              <>
+                <p><strong>Nombre:</strong> {user.nombres} {user.apellidos}</p>
+                <p><strong>Registro:</strong> {user.registro_academico}</p>
+              </>
+            ) : (
+              <p>Cargando perfil...</p>
+            )}
             <button
               onClick={() => navigate('/profile')}
               style={styles.viewProfileButton}
@@ -82,17 +88,21 @@ const HomePage = () => {
           </div>
 
           <div style={styles.postList}>
-            {publicaciones.map((post) => (
-              <div key={post.id} style={styles.postCard}>
-                <p style={styles.postText}>
-                  <em>{post.contenido}</em>
-                </p>
-                <div style={styles.postFooter}>
-                  <span style={styles.postUser}>Usuario: @{post.usuario}</span>
-                  <span style={styles.postDate}>Fecha: {post.fecha}</span>
+            {publicaciones.length > 0 ? (
+              publicaciones.map((post) => (
+                <div key={post.id} style={styles.postCard}>
+                  <p style={styles.postText}>
+                    <em>{post.mensaje}</em>
+                  </p>
+                  <div style={styles.postFooter}>
+                    <span style={styles.postUser}>Usuario: @{post.usuario?.nombres || 'Usuario'}</span>
+                    <span style={styles.postDate}>Fecha: {new Date(post.fecha_creacion).toLocaleDateString()}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p style={styles.noPosts}>No hay publicaciones aún. Sé el primero en crear una.</p>
+            )}
           </div>
         </main>
       </div>
@@ -100,17 +110,16 @@ const HomePage = () => {
   );
 };
 
-// === COLORES ACTUALIZADOS ===
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#d8f3dc', // Fondo general suave
+    backgroundColor: '#d8f3dc',
     fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
     margin: 0,
     padding: 0,
   },
   header: {
-    backgroundColor: '#2d6a4f', // Verde oscuro
+    backgroundColor: '#2d6a4f',
     color: 'white',
     padding: '16px 40px',
     display: 'flex',
@@ -121,7 +130,7 @@ const styles = {
   logo: {
     fontSize: '28px',
     fontWeight: 'bold',
-    color: '#95d5b2', // Verde suave
+    color: '#95d5b2',
   },
   nav: {
     display: 'flex',
@@ -155,7 +164,7 @@ const styles = {
   },
   sidebar: {
     width: '300px',
-    backgroundColor: '#95d5b2', // Verde suave
+    backgroundColor: '#95d5b2',
     color: '#2d6a4f',
     padding: '24px',
     borderRadius: '12px',
@@ -279,6 +288,14 @@ const styles = {
     color: '#40916c',
     fontWeight: '500',
   },
+  noPosts: {
+    textAlign: 'center',
+    color: '#40916c',
+    fontStyle: 'italic',
+    padding: '20px',
+    backgroundColor: '#95d5b2',
+    borderRadius: '8px',
+  }
 };
 
 export default HomePage;

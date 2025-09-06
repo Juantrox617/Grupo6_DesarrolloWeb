@@ -37,7 +37,7 @@ function Register() {
             <input
               name="registro_academico"
               type="text"
-              placeholder="202400023"
+              placeholder=""
               value={form.registro_academico}
               onChange={handleChange}
               style={styles.input}
@@ -49,7 +49,7 @@ function Register() {
             <input
               name="nombres"
               type="text"
-              placeholder="Ana María"
+              placeholder=""
               value={form.nombres}
               onChange={handleChange}
               style={styles.input}
@@ -61,7 +61,7 @@ function Register() {
             <input
               name="apellidos"
               type="text"
-              placeholder="López González"
+              placeholder=""
               value={form.apellidos}
               onChange={handleChange}
               style={styles.input}
@@ -73,7 +73,7 @@ function Register() {
             <input
               name="correo"
               type="email"
-              placeholder="correo@usac.edu.gt"
+              placeholder="correo@ingenieria.usac.edu.gt"
               value={form.correo}
               onChange={handleChange}
               style={styles.input}
@@ -85,7 +85,7 @@ function Register() {
             <input
               name="password"
               type="password"
-              placeholder="Contraseña"
+              placeholder=""
               value={form.password}
               onChange={handleChange}
               style={styles.input}

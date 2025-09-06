@@ -1,32 +1,53 @@
 // src/pages/Profile.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Profile() {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    nombres: 'Ana María',
-    apellidos: 'López González',
-    correo: 'ana@usac.edu.gt'
+    nombres: '',
+    apellidos: '',
+    correo: ''
   });
+
+  // Cargar datos del usuario si existen
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setFormData({
+        nombres: storedUser.nombres || '',
+        apellidos: storedUser.apellidos || '',
+        correo: storedUser.correo || ''
+      });
+    }
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSave = () => {
-    setEditMode(false);
+    // Simulación: en producción, esto se envía al backend
     alert('Perfil actualizado (simulado)');
+    setEditMode(false);
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Perfil de Usuario</h2>
+
+        {/* Registro Académico (siempre visible, no editable) */}
         <div style={styles.info}>
-          <strong>Registro Académico:</strong> 202400023
+          <strong>Registro Académico:</strong>{' '}
+          {(() => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            return user?.registro_academico || 'No disponible';
+          })()}
         </div>
+
+        {/* Formulario en modo edición */}
         {editMode ? (
           <>
             <div style={styles.inputGroup}>
@@ -35,27 +56,34 @@ function Profile() {
                 name="nombres"
                 value={formData.nombres}
                 onChange={handleChange}
+                placeholder="Ingresa tus nombres"
                 style={styles.input}
               />
             </div>
+
             <div style={styles.inputGroup}>
               <label style={styles.label}>Apellidos</label>
               <input
                 name="apellidos"
                 value={formData.apellidos}
                 onChange={handleChange}
+                placeholder="Ingresa tus apellidos"
                 style={styles.input}
               />
             </div>
+
             <div style={styles.inputGroup}>
               <label style={styles.label}>Correo</label>
               <input
                 name="correo"
                 value={formData.correo}
                 onChange={handleChange}
+                placeholder="correo@ingenieria.usac.edu.gt"
                 style={styles.input}
+                type="email"
               />
             </div>
+
             <button onClick={handleSave} style={styles.button}>Guardar</button>
             <button
               onClick={() => setEditMode(false)}
@@ -66,14 +94,25 @@ function Profile() {
           </>
         ) : (
           <>
-            <div style={styles.info}><strong>Nombres:</strong> {formData.nombres}</div>
-            <div style={styles.info}><strong>Apellidos:</strong> {formData.apellidos}</div>
-            <div style={styles.info}><strong>Correo:</strong> {formData.correo}</div>
+            {/* Vista previa de datos */}
+            <div style={styles.info}>
+              <strong>Nombres:</strong> {formData.nombres || 'No especificado'}
+            </div>
+            <div style={styles.info}>
+              <strong>Apellidos:</strong> {formData.apellidos || 'No especificado'}
+            </div>
+            <div style={styles.info}>
+              <strong>Correo:</strong> {formData.correo || 'No especificado'}
+            </div>
+
+            {/* Botón para editar */}
             <button onClick={() => setEditMode(true)} style={styles.button}>
               Editar Perfil
             </button>
           </>
         )}
+
+        {/* Botón para volver */}
         <button
           onClick={() => navigate('/homepage')}
           style={{ ...styles.button, backgroundColor: '#2d6a4f', marginTop: '20px' }}
@@ -88,7 +127,7 @@ function Profile() {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#d8f3dc', // Fondo claro verde (mismo que HomePage)
+    backgroundColor: '#d8f3dc',
     padding: '20px',
     display: 'flex',
     justifyContent: 'center',
