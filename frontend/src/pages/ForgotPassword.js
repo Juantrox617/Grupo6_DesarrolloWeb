@@ -40,7 +40,7 @@ function ForgotPassword() {
               <label style={styles.label}>Registro Académico</label>
               <input
                 type="text"
-                placeholder="202400023"
+                placeholder="000000000"
                 value={registro}
                 onChange={(e) => setRegistro(e.target.value)}
                 style={styles.input}
@@ -51,7 +51,7 @@ function ForgotPassword() {
               <label style={styles.label}>Correo Electrónico</label>
               <input
                 type="email"
-                placeholder="correo@usac.edu.gt"
+                placeholder="correo@ingenieria.usac.edu.gt"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
                 style={styles.input}

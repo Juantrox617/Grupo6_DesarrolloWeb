@@ -31,7 +31,7 @@ function Login() {
             <label style={styles.label}>Registro Académico</label>
             <input
               type="text"
-              placeholder="202400023"
+              placeholder="000000000"
               value={registro}
               onChange={(e) => setRegistro(e.target.value)}
               style={styles.input}
