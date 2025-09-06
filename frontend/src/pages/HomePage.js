@@ -1,6 +1,9 @@
 // src/pages/HomePage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/Kursum-homepage.png';
+import '../styles/TextInput.css';
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -10,23 +13,23 @@ const HomePage = () => {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.logo}>Kursum</h1>
+        <img src={logo} alt="Logo Kursum" style={{ width: '250px' }} />
         <nav style={styles.nav}>
           <a href="/homepage" style={styles.navLink}>Inicio</a>
-          <a
+          <a  //boton para ver mi perfil
             href="/profile"
             onClick={(e) => { e.preventDefault(); navigate('/profile'); }}
             style={styles.navLink}
           >
             Mi perfil
           </a>
-          <button
-            onClick={() => {
+          <button  //boton para cerrar sesion
+            onClick={() => {  
               localStorage.removeItem('token');
               localStorage.removeItem('user');
               navigate('/');
             }}
-            style={styles.logoutButton}
+            style={styles.logoutButton} 
           >
             Cerrar sesión
           </button>
@@ -35,7 +38,7 @@ const HomePage = () => {
 
       <div style={styles.main}>
         <aside style={styles.sidebar}>
-          <h2 style={styles.sidebarTitle}>🔍 Filtros</h2>
+          <h2 style={styles.sidebarTitle}> Filtros</h2>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Por Curso</label>
@@ -53,29 +56,14 @@ const HomePage = () => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Buscar por nombre</label>
-            <input type="text" placeholder="Ej: López, Algoritmos" style={styles.input} />
+            <div className="textInputWrapper">
+              <input placeholder="Buscar por nombre..." type="text" className="textInput" />
+            </div>
           </div>
+
 
           <button style={styles.filterButton}>Aplicar filtros</button>
-
-          <div style={styles.profileSection}>
-            <h3 style={styles.profileTitle}>👤 Tu Perfil</h3>
-            {user ? (
-              <>
-                <p><strong>Nombre:</strong> {user.nombres} {user.apellidos}</p>
-                <p><strong>Registro:</strong> {user.registro_academico}</p>
-              </>
-            ) : (
-              <p>Cargando perfil...</p>
-            )}
-            <button
-              onClick={() => navigate('/profile')}
-              style={styles.viewProfileButton}
-            >
-              Ver Perfil Completo
-            </button>
-          </div>
-        </aside>
+          </aside>
 
         <main style={styles.feed}>
           <div style={styles.createPostContainer}>
@@ -121,10 +109,12 @@ const styles = {
   header: {
     backgroundColor: '#2d6a4f',
     color: 'white',
+    height: '80px',
     padding: '16px 40px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    padding: '0 40px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
   logo: {
@@ -163,13 +153,16 @@ const styles = {
     marginTop: '20px',
   },
   sidebar: {
-    width: '300px',
-    backgroundColor: '#95d5b2',
+    width: '280px',
+    backgroundColor: '#c3e7d3ff',
     color: '#2d6a4f',
-    padding: '24px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    border: '1px solid #74c69d',
+    padding: '24px 16px',
+    minHeight: 'calc(100vh - 80px)',
+    borderRadius: '0px',
+    boxShadow: 'none',
+    position: 'fixed',
+    top: '80px',
+    left: 0,
   },
   sidebarTitle: {
     fontSize: '22px',
@@ -200,7 +193,7 @@ const styles = {
   select: {
     width: '100%',
     padding: '10px',
-    border: '1px solid #74c69d',
+    border: '1px solid #ffffffff',
     borderRadius: '6px',
     backgroundColor: 'white',
     color: '#2d6a4f',
@@ -211,11 +204,11 @@ const styles = {
     backgroundColor: '#40916c',
     color: 'white',
     border: 'none',
-    padding: '12px',
-    borderRadius: '6px',
+    padding: '10px',
+    borderRadius: '20px',
     cursor: 'pointer',
-    fontWeight: '500',
-    fontSize: '16px',
+    fontWeight: '600',
+    fontSize: '14px',
     marginTop: '10px',
     transition: 'background-color 0.3s'
   },
@@ -244,6 +237,8 @@ const styles = {
   },
   feed: {
     flex: 1,
+    marginLeft: '280px',
+    padding: '20px',
     maxWidth: '800px',
   },
   createPostContainer: {
@@ -268,11 +263,11 @@ const styles = {
   },
   postCard: {
     backgroundColor: 'white',
-    padding: '20px',
-    borderRadius: '10px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    padding: '24px',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     color: '#2d6a4f',
-    border: '1px solid #95d5b2',
+    border: '1px solid #eee',
   },
   postText: {
     fontSize: '15px',
@@ -285,7 +280,7 @@ const styles = {
     justifyContent: 'space-between',
     marginTop: '12px',
     fontSize: '13px',
-    color: '#40916c',
+    color: '#666',
     fontWeight: '500',
   },
   noPosts: {
