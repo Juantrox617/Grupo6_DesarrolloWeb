@@ -1,0 +1,69 @@
+
+const express = require('express');
+const app = express();
+const mysql = require('mysql');
+const cors = require('cors');
+app.use(cors());
+app.use(express.json());
+
+
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '0000',
+  database: 'foro',
+});
+
+app.post('/create', (req, res) => {
+  const carnet = req.body.carnet;
+  const nombres = req.body.nombres;
+  const apellidos = req.body.apellidos;
+  const contrasena = req.body.contrasena;
+  const correo = req.body.correo;
+
+  db.query('INSERT INTO usuario (carnet, nombres, apellidos, contrasena, correo) VALUES (?, ?, ?, ?, ?)', [carnet, nombres, apellidos, contrasena, correo], (err, result) => {
+    if (err) {
+      console.error('Error al insertar el usuario:', err);
+      res.status(500).json({ error: 'Error al insertar el usuario' });
+      
+    } else {
+      console.log('Usuario creado exitosamente');
+      res.status(201).json({ message: 'Usuario creado exitosamente' });
+    }
+  });
+});
+
+app.get('/usuario', (req, res) => {
+  db.query('SELECT * FROM usuario', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los usuarios:', err);
+      
+    } else {
+      res.send(result);
+    }
+  });
+});
+app.post('/login', (req, res) => {
+  const carnet = req.body.carnet;
+  const Contrasena = req.body.contrasena;
+  db.query('SELECT * FROM usuario WHERE carnet = ? AND contrasena = ?', [carnet, Contrasena], (err, results) => {
+    if (err) {
+      console.error('Error al autenticar el usuario:', err);
+      return res.status(500).json({ error: 'Error al autenticar el usuario' });
+    }
+    if (results.length > 0) {
+      return res.status(200).json({ message: 'Autenticación exitosa' });
+    } else {
+      return res.status(401).json({ message: 'Carnet o contraseña incorrectos' });
+    }
+  });
+});
+
+app.listen(3001, () => {
+  console.log('Servidor corriendo en http://localhost:3001');
+});
+
+
+
+  
