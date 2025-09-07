@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 
+
 const NewPublication = () => {
   const navigate = useNavigate();
   const [cursos, setCursos] = useState([]);
@@ -12,15 +13,49 @@ const NewPublication = () => {
     mensaje: "",
     tipo: "",       // curso o catedrático
     referente: "",  // nombre del curso o catedrático
-    fecha: new Date().toISOString().split("T")[0], // fecha de hoy
+    fecha: (() => {
+      const now = new Date(); 
+      const dia = String(now.getDate()).padStart(2, '0');
+      const mes = String(now.getMonth() + 1).padStart(2, '0');
+      const anio = now.getFullYear();
+      const hora = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${anio} Hora: ${hora}:${min}`;
+    })(), 
   });
 
   // Simulación de carga de cursos y catedráticos
   useEffect(() => {
-    // 👉 Aquí después conectan con el backend
-    setCursos(["Matemática I", "Programación I", "Física II"]);
-    setCatedraticos(["Dr. Pérez", "Lic. Ramírez", "Ing. López"]);
-  }, []);
+      fetch('http://localhost:3001/catedraticos') 
+      .then(response => response.json())
+      .then(data => {
+        console.log('Catedráticos obtenidos:', data);
+        setCatedraticos(data);
+      })
+      .catch(error => console.error('Error al obtener los catedráticos:', error));
+    }, []);
+    useEffect(() => {
+        fetch('http://localhost:3001/cursos') 
+        .then(response => response.json())
+        .then(data => {
+          console.log('Cursos obtenidos:', data);
+          setCursos(data);
+        })
+        .catch(error => console.error('Error al obtener los cursos:', error));
+      }, []);
+       useEffect(() => {
+      fetch('http://localhost:3001/publicaciones') 
+      .then(response => response.json())
+      .then(data => {
+        console.log('Publicacion guardada:', data);
+        setFormData(data);
+      })
+      .catch(error => console.error('Error al guardar la publicación:', error));
+    }, []);
+    
+
+   
+
 
   // Manejar cambios de inputs
   const handleChange = (e) => {
@@ -38,7 +73,7 @@ const NewPublication = () => {
     console.log("Nueva publicación:", formData);
 
     // Aquí conectas con tu backend real!!!
-    fetch("http://tu-backend.com/api/publicaciones", {
+    fetch("http://localhost:3001/publicaciones", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -112,9 +147,9 @@ const NewPublication = () => {
                 required
               >
                 <option value="">-- Selecciona un curso --</option>
-                {cursos.map((curso, idx) => (
-                  <option key={idx} value={curso}>
-                    {curso}
+                {cursos.map((curso) => (
+                  <option key={curso.id} value={curso.id}>
+                    {curso.nombre} Seccion {curso.seccion}
                   </option>
                 ))}
               </select>
@@ -132,26 +167,17 @@ const NewPublication = () => {
                 required
               >
                 <option value="">-- Selecciona un catedrático --</option>
-                {catedraticos.map((catedratico, idx) => (
-                  <option key={idx} value={catedratico}>
-                    {catedratico}
+                {catedraticos.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
                   </option>
                 ))}
               </select>
             </div>
           )}
 
-          {/* Campo de fecha */}
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Fecha</label>
-            <input
-              type="date"
-              name="fecha"
-              value={formData.fecha}
-              readOnly
-              style={styles.input}
-            />
-          </div>
+          
+          
 
           <div style={styles.actions}>
             <button type="submit" style={styles.submitButton}>

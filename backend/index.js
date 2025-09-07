@@ -1,0 +1,113 @@
+
+const express = require('express');
+const app = express();
+const mysql = require('mysql');
+const cors = require('cors');
+app.use(cors());
+app.use(express.json());
+
+
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '0000',
+  database: 'foro',
+});
+
+app.post('/create', (req, res) => {
+  const carnet = req.body.carnet;
+  const nombres = req.body.nombres;
+  const apellidos = req.body.apellidos;
+  const contrasena = req.body.contrasena;
+  const correo = req.body.correo;
+
+  db.query('INSERT INTO usuario (carnet, nombres, apellidos, contrasena, correo) VALUES (?, ?, ?, ?, ?)', [carnet, nombres, apellidos, contrasena, correo], (err, result) => {
+    if (err) {
+      console.error('Error al insertar el usuario:', err);
+      res.status(500).json({ error: 'Error al insertar el usuario' });
+      
+    } else {
+      console.log('Usuario creado exitosamente');
+      res.status(201).json({ message: 'Usuario creado exitosamente' });
+    }
+  });
+});
+
+app.get('/usuario', (req, res) => {
+  db.query('SELECT * FROM usuario', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los usuarios:', err);
+      
+    } else {
+      res.send(result);
+    }
+  });
+});
+app.post('/login', (req, res) => {
+  const carnet = req.body.carnet;
+  const Contrasena = req.body.contrasena;
+  db.query('SELECT * FROM usuario WHERE carnet = ? AND contrasena = ?', [carnet, Contrasena], (err, results) => {
+    if (err) {
+      console.error('Error al autenticar el usuario:', err);
+      return res.status(500).json({ error: 'Error al autenticar el usuario' });
+    }
+    if (results.length > 0) {
+      return res.status(200).json({ message: 'Autenticación exitosa' });
+    } else {
+      return res.status(401).json({ message: 'Carnet o contraseña incorrectos' });
+    }
+  });
+});
+
+  app.get('/catedraticos', (req, res) => {
+  db.query('SELECT * FROM catedratico', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los catedráticos:', err);
+      res.status(500).json({ error: 'Error al obtener los catedráticos' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+  app.get('/cursos', (req, res) => {
+  db.query('SELECT * FROM curso', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los cursos:', err);
+      res.status(500).json({ error: 'Error al obtener los cursos' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+  app.post('/publicaciones', (req, res) => {
+  const { titulo, mensaje, tipo, referente, fecha } = req.body;
+  db.query('INSERT INTO publicacion (titulo, mensaje, tipo, referente, fecha) VALUES (?, ?, ?, ?, ?)', [titulo, mensaje, tipo, referente, fecha], (err, result) => {
+    if (err) {
+      console.error('Error al guardar la publicación:', err);
+      res.status(500).json({ error: 'Error al guardar la publicación' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+app.get('/getpublicaciones', (req, res) => {
+  db.query('SELECT * FROM publicacion', (err, result) => {
+    if (err) {
+      console.error('Error al obtener la publicación:', err);
+      res.status(500).json({ error: 'Error al obtener la publicación' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+  
+app.listen(3001, () => {
+  console.log('Servidor corriendo en http://localhost:3001');
+});
+
+
+
+  

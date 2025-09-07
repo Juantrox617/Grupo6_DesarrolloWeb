@@ -1,56 +1,73 @@
+// src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import logo from '../assets/Kursum-Logo-login.png';
+import axios from 'axios';
 
 function Login() {
-  const [registro, setRegistro] = useState('');
+  const [carnet, setCarnet] = useState(''); 
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await api.post('/auth/login', {
-        registro_academico: registro,
-        password
-      });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate('/home');
-    } catch (error) {
-      alert('Error: ' + (error.response?.data?.message || 'Credenciales incorrectas'));
-    }
+
+    axios.post('http://localhost:3001/login', {
+      carnet: carnet,
+      contrasena: password
+    })
+    .then((response) => {
+      console.log('Inicio de sesión exitoso');
+      console.log('Respuesta del servidor:', response.data);
+      alert('Inicio de sesión exitoso');
+      navigate('/homepage');
+    })
+    .catch((error) => {
+      console.error('Error al iniciar sesión:', error);
+      alert('Credenciales incorrectas');
+    });
   };
 
   return (
     <div style={styles.container}>
+      {/* Logo arriba del cuadro de login, fuera del recuadro */}
+      <img src={logo} alt="Logo Kursum" style={styles.logoOutside} />
+
+      {/* Cuadro de login */}
       <div style={styles.card}>
         <h2 style={styles.title}>Iniciar Sesión</h2>
         <form onSubmit={handleSubmit}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
-            <input
-              type="text"
-              placeholder="000000000"
-              value={registro}
-              onChange={(e) => setRegistro(e.target.value)}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                type="text"
+                placeholder="000000000"
+                value={carnet}
+                onChange={(e) => setCarnet(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <button type="submit" style={styles.button}>Iniciar Sesión</button>
         </form>
+
         <p style={styles.text}>
           ¿No tienes cuenta?{' '}
           <a href="/register" style={styles.link}>Regístrate</a>
@@ -66,11 +83,17 @@ function Login() {
 const styles = {
   container: {
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     minHeight: '100vh',
     backgroundColor: '#d8f3dc',
-    padding: '20px'
+    padding: '40px 20px 20px 20px'
+  },
+  logoOutside: {
+    width: '250px',
+    marginBottom: '30px',
+    marginTop: '40px'
   },
   card: {
     backgroundColor: 'white',
@@ -78,7 +101,8 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '400px',
+    textAlign: 'center'
   },
   title: {
     textAlign: 'center',
@@ -87,21 +111,14 @@ const styles = {
     fontWeight: '600'
   },
   inputGroup: {
-    marginBottom: '16px'
+    marginBottom: '16px',
+    textAlign: 'left'
   },
   label: {
     display: 'block',
     marginBottom: '6px',
     color: '#1b4332',
     fontWeight: '500'
-  },
-  input: {
-    width: '100%',
-    padding: '12px',
-    border: '1px solid #40916c',
-    borderRadius: '6px',
-    boxSizing: 'border-box',
-    fontSize: '14px'
   },
   button: {
     backgroundColor: '#1b4332',

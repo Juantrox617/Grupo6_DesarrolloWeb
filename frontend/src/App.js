@@ -4,8 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
-import Profile from './pages/Profile';
 import HomePage from './pages/HomePage';
+import MyProfile from './pages/MyProfile';
+import Profiles from './pages/Profiles';
 import NewPublication from './pages/NewPublication';
 
 function App() {
@@ -13,14 +14,12 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          {/* Puedes usar el login o saltarlo */}
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-
-          {/* Rutas para diseño (accesibles sin login) */}
           <Route path="/homepage" element={<HomePage />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/profiles" element={<Profiles />} />
           <Route path="/crear-publicacion" element={<NewPublication />} />
         </Routes>
       </div>

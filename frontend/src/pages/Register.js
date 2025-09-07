@@ -1,99 +1,115 @@
+// src/pages/Register.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import Axios from 'axios';
 
 function Register() {
-  const [form, setForm] = useState({
-    registro_academico: '',
-    nombres: '',
-    apellidos: '',
-    correo: '',
-    password: ''
-  });
-  const navigate = useNavigate();
+  const [carnet, setCarnet] = useState('');
+  const [Nombres, setNombres] = useState('');
+  const [Apellidos, setApellidos] = useState('');
+  const [Correo, setCorreo] = useState('');
+  const [Contrasena, setContrasena] = useState('');
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const add = (e) => {
     e.preventDefault();
-    try {
-      await api.post('/auth/register', form);
-      alert('Usuario registrado con éxito');
-      navigate('/');
-    } catch (error) {
+    Axios.post('http://localhost:3001/create', {
+      carnet: carnet,
+      nombres: Nombres,
+      apellidos: Apellidos,
+      correo: Correo,
+      contrasena: Contrasena
+    })
+    .then(() => {
+      alert("Usuario registrado con éxito");
+    })
+    .catch((error) => {
       alert('Error: ' + (error.response?.data?.message || 'No se pudo registrar'));
-    }
+      console.error('Error al insertar el usuario:', error);
+    });
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Crear Cuenta</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={add}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
-            <input
-              name="registro_academico"
-              type="text"
-              placeholder=""
-              value={form.registro_academico}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                name="carnet"
+                type="text"
+                placeholder="000000000"
+                value={carnet}
+                onChange={(e) => setCarnet(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Nombres</label>
-            <input
-              name="nombres"
-              type="text"
-              placeholder=""
-              value={form.nombres}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                name="nombres"
+                type="text"
+                placeholder="Ana María"
+                value={Nombres}
+                onChange={(e) => setNombres(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Apellidos</label>
-            <input
-              name="apellidos"
-              type="text"
-              placeholder=""
-              value={form.apellidos}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                name="apellidos"
+                type="text"
+                placeholder="López González"
+                value={Apellidos}
+                onChange={(e) => setApellidos(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Correo Electrónico</label>
-            <input
-              name="correo"
-              type="email"
-              placeholder="correo@ingenieria.usac.edu.gt"
-              value={form.correo}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                name="correo"
+                type="email"
+                placeholder="correo@ingenieria.usac.edu.gt"
+                value={Correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
-            <input
-              name="password"
-              type="password"
-              placeholder=""
-              value={form.password}
-              onChange={handleChange}
-              style={styles.input}
-              required
-            />
+            <div className="textInputWrapper">
+              <input
+                name="contrasena"
+                type="password"
+                placeholder="Contraseña"
+                value={Contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                className="textInput"
+                required
+              />
+            </div>
           </div>
+
           <button type="submit" style={styles.button}>Crear Cuenta</button>
         </form>
+
         <p style={styles.text}>
           ¿Ya tienes cuenta?{' '}
           <a href="/" style={styles.link}>Inicia sesión</a>
@@ -127,21 +143,14 @@ const styles = {
     fontWeight: '600'
   },
   inputGroup: {
-    marginBottom: '16px'
+    marginBottom: '16px',
+    textAlign: 'left'
   },
   label: {
     display: 'block',
     marginBottom: '6px',
     color: '#1b4332',
     fontWeight: '500'
-  },
-  input: {
-    width: '100%',
-    padding: '12px',
-    border: '1px solid #40916c',
-    borderRadius: '6px',
-    boxSizing: 'border-box',
-    fontSize: '14px'
   },
   button: {
     backgroundColor: '#1b4332',
