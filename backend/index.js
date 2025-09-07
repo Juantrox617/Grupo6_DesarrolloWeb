@@ -82,6 +82,28 @@ app.post('/login', (req, res) => {
   });
 });
 
+  app.post('/publicaciones', (req, res) => {
+  const { titulo, mensaje, tipo, referente, fecha } = req.body;
+  db.query('INSERT INTO publicacion (titulo, mensaje, tipo, referente, fecha) VALUES (?, ?, ?, ?, ?)', [titulo, mensaje, tipo, referente, fecha], (err, result) => {
+    if (err) {
+      console.error('Error al guardar la publicación:', err);
+      res.status(500).json({ error: 'Error al guardar la publicación' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+app.get('/getpublicaciones', (req, res) => {
+  db.query('SELECT * FROM publicacion', (err, result) => {
+    if (err) {
+      console.error('Error al obtener la publicación:', err);
+      res.status(500).json({ error: 'Error al obtener la publicación' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+  
 app.listen(3001, () => {
   console.log('Servidor corriendo en http://localhost:3001');
 });

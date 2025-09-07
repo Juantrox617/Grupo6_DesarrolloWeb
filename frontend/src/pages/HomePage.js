@@ -29,6 +29,15 @@ const HomePage = () => {
     })
     .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
+  useEffect(() => {
+    fetch('http://localhost:3001/getpublicaciones') 
+    .then(response => response.json())
+    .then(data => {
+      console.log('Publicaciones obtenidas:', data);
+      setPublicaciones(data);
+    })
+    .catch(error => console.error('Error al obtener las publicaciones:', error));
+  }, []);
 
   return (
     <div style={styles.container}>

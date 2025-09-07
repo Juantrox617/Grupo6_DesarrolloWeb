@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
+import Axios from "axios";
 
 const NewPublication = () => {
   const navigate = useNavigate();
@@ -34,6 +35,33 @@ const NewPublication = () => {
         })
         .catch(error => console.error('Error al obtener los cursos:', error));
       }, []);
+       useEffect(() => {
+      fetch('http://localhost:3001/publicaciones') 
+      .then(response => response.json())
+      .then(data => {
+        console.log('Publicacion guardada:', data);
+        setFormData(data);
+      })
+      .catch(error => console.error('Error al guardar la publicación:', error));
+    }, []);
+    const add = (e) => {
+    e.preventDefault();
+    Axios.post('http://localhost:3001/publicaciones', {
+      titulo: formData.titulo,
+      mensaje: formData.mensaje,
+      tipo: formData.tipo,
+      referente: formData.referente,
+      fecha: formData.fecha
+    }).then(() => {
+      alert("Publicación guardada con éxito");
+    }).catch((error) => {
+      alert('Error: ' + (error.response?.data?.message || 'No se pudo guardar la publicación'));
+      console.error('Error al insertar la publicación:', error);
+    });
+  }
+
+   
+
 
   // Manejar cambios de inputs
   const handleChange = (e) => {
@@ -51,7 +79,7 @@ const NewPublication = () => {
     console.log("Nueva publicación:", formData);
 
     // Aquí conectas con tu backend real!!!
-    fetch("http://tu-backend.com/api/publicaciones", {
+    fetch("http://localhost:3001/publicaciones", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
