@@ -83,15 +83,40 @@ const HomePage = () => {
                     <em>{post.mensaje}</em>
                   </p>
                   <div style={styles.postFooter}>
-                    <span style={styles.postUser}>Usuario: @{post.usuario?.nombres || 'Usuario'}</span>
-                    <span style={styles.postDate}>Fecha: {new Date(post.fecha_creacion).toLocaleDateString()}</span>
+                    <span style={styles.postUser}>
+                      Usuario: @{post.usuario?.nombres || 'Usuario'}
+                    </span>
+                    <span style={styles.postDate}>
+                      Fecha: {new Date(post.fecha_creacion).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  {/* 🔽 Aquí agregamos la sección de comentarios */}
+                  <div style={{ marginTop: "15px" }}>
+                    <h4 style={{ marginBottom: "8px" }}>Comentarios:</h4>
+                    {post.comentarios && post.comentarios.length > 0 ? (
+                      <ul style={{ paddingLeft: "20px", margin: 0 }}>
+                        {post.comentarios.map((c) => (
+                          <li key={c.id} style={{ marginBottom: "6px", fontSize: "14px" }}>
+                            <strong>@{c.usuario?.nombres || "Anon"}:</strong> {c.texto}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p style={{ fontSize: "14px", color: "#666" }}>
+                        No hay comentarios aún.
+                      </p>
+                    )}
                   </div>
                 </div>
               ))
             ) : (
-              <p style={styles.noPosts}>No hay publicaciones aún. Sé el primero en crear una.</p>
+              <p style={styles.noPosts}>
+                No hay publicaciones aún. Sé el primero en crear una.
+              </p>
             )}
           </div>
+
         </main>
       </div>
     </div>
