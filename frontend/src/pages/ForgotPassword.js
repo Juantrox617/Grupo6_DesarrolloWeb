@@ -1,3 +1,4 @@
+// src/pages/ForgotPassword.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -38,40 +39,48 @@ function ForgotPassword() {
           <form onSubmit={handleVerify}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>Registro Académico</label>
-              <input
-                type="text"
-                placeholder="000000000"
-                value={registro}
-                onChange={(e) => setRegistro(e.target.value)}
-                style={styles.input}
-                required
-              />
+              <div className="textInputWrapper">
+                <input
+                  type="text"
+                  placeholder="000000000"
+                  value={registro}
+                  onChange={(e) => setRegistro(e.target.value)}
+                  className="textInput"
+                  required
+                />
+              </div>
             </div>
+
             <div style={styles.inputGroup}>
               <label style={styles.label}>Correo Electrónico</label>
-              <input
-                type="email"
-                placeholder="correo@ingenieria.usac.edu.gt"
-                value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
-                style={styles.input}
-                required
-              />
+              <div className="textInputWrapper">
+                <input
+                  type="email"
+                  placeholder="correo@ingenieria.usac.edu.gt"
+                  value={correo}
+                  onChange={(e) => setCorreo(e.target.value)}
+                  className="textInput"
+                  required
+                />
+              </div>
             </div>
+
             <button type="submit" style={styles.button}>Verificar</button>
           </form>
         ) : (
           <form onSubmit={handleChangePassword}>
             <div style={styles.inputGroup}>
               <label style={styles.label}>Nueva Contraseña</label>
-              <input
-                type="password"
-                placeholder="Nueva contraseña"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                style={styles.input}
-                required
-              />
+              <div className="textInputWrapper">
+                <input
+                  type="password"
+                  placeholder="Nueva contraseña"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="textInput"
+                  required
+                />
+              </div>
             </div>
             <button type="submit" style={styles.button}>Reestablecer</button>
           </form>
@@ -108,21 +117,14 @@ const styles = {
     fontWeight: '600'
   },
   inputGroup: {
-    marginBottom: '16px'
+    marginBottom: '16px',
+    textAlign: 'left'
   },
   label: {
     display: 'block',
     marginBottom: '6px',
     color: '#1b4332',
     fontWeight: '500'
-  },
-  input: {
-    width: '100%',
-    padding: '12px',
-    border: '1px solid #40916c',
-    borderRadius: '6px',
-    boxSizing: 'border-box',
-    fontSize: '14px'
   },
   button: {
     backgroundColor: '#1b4332',

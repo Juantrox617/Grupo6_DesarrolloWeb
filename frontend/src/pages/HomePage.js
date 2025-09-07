@@ -4,30 +4,30 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
 
-
 const HomePage = () => {
   const navigate = useNavigate();
-  const [publicaciones, setPublicaciones] = useState([]); // Inicialmente vacío, se llenará desde el backend
+  const [publicaciones, setPublicaciones] = useState([]);
   const [catedraticos, setCatedraticos] = useState([]);
   const [cursos, setCursos] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/catedraticos') 
-    .then(response => response.json())
-    .then(data => {
-      console.log('Catedráticos obtenidos:', data);
-      setCatedraticos(data);
-    })
-    .catch(error => console.error('Error al obtener los catedráticos:', error));
+    fetch('http://localhost:3001/catedraticos')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Catedráticos obtenidos:', data);
+        setCatedraticos(data);
+      })
+      .catch(error => console.error('Error al obtener los catedráticos:', error));
   }, []);
+
   useEffect(() => {
-    fetch('http://localhost:3001/cursos') 
-    .then(response => response.json())
-    .then(data => {
-      console.log('Cursos obtenidos:', data);
-      setCursos(data);
-    })
-    .catch(error => console.error('Error al obtener los cursos:', error));
+    fetch('http://localhost:3001/cursos')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Cursos obtenidos:', data);
+        setCursos(data);
+      })
+      .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
   useEffect(() => {
     fetch('http://localhost:3001/getpublicaciones') 
@@ -45,20 +45,27 @@ const HomePage = () => {
         <img src={logo} alt="Logo Kursum" style={{ width: '250px' }} />
         <nav style={styles.nav}>
           <a href="/homepage" style={styles.navLink}>Inicio</a>
-          <a  //boton para ver mi perfil
-            href="/profile"
-            onClick={(e) => { e.preventDefault(); navigate('/profile'); }}
+          <a
+            href="/my-profile"
+            onClick={(e) => { e.preventDefault(); navigate('/my-profile'); }}
             style={styles.navLink}
           >
             Mi perfil
           </a>
-          <button  //boton para cerrar sesion
-            onClick={() => {  
+          <a
+            href="/profiles"
+            onClick={(e) => { e.preventDefault(); navigate('/profiles'); }}
+            style={styles.navLink}
+          >
+            Perfiles
+          </a>
+          <button
+            onClick={() => {
               localStorage.removeItem('token');
               localStorage.removeItem('user');
               navigate('/');
             }}
-            style={styles.logoutButton} 
+            style={styles.logoutButton}
           >
             Cerrar sesión
           </button>
@@ -100,9 +107,8 @@ const HomePage = () => {
             </div>
           </div>
 
-
           <button style={styles.filterButton}>Aplicar filtros</button>
-          </aside>
+        </aside>
 
         <main style={styles.feed}>
           <div style={styles.createPostContainer}>
@@ -248,29 +254,6 @@ const styles = {
     borderRadius: '20px',
     cursor: 'pointer',
     fontWeight: '600',
-    fontSize: '14px',
-    marginTop: '10px',
-    transition: 'background-color 0.3s'
-  },
-  profileSection: {
-    marginTop: '30px',
-    borderTop: '1px solid #74c69d',
-    paddingTop: '20px',
-  },
-  profileTitle: {
-    fontSize: '18px',
-    color: '#2d6a4f',
-    marginBottom: '10px',
-  },
-  viewProfileButton: {
-    width: '100%',
-    backgroundColor: '#74c69d',
-    color: '#2d6a4f',
-    border: '1px solid #40916c',
-    padding: '10px',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontWeight: '500',
     fontSize: '14px',
     marginTop: '10px',
     transition: 'background-color 0.3s'
