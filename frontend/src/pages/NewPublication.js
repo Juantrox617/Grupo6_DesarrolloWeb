@@ -17,10 +17,23 @@ const NewPublication = () => {
 
   // Simulación de carga de cursos y catedráticos
   useEffect(() => {
-    // 👉 Aquí después conectan con el backend
-    setCursos(["Matemática I", "Programación I", "Física II"]);
-    setCatedraticos(["Dr. Pérez", "Lic. Ramírez", "Ing. López"]);
-  }, []);
+      fetch('http://localhost:3001/catedraticos') 
+      .then(response => response.json())
+      .then(data => {
+        console.log('Catedráticos obtenidos:', data);
+        setCatedraticos(data);
+      })
+      .catch(error => console.error('Error al obtener los catedráticos:', error));
+    }, []);
+    useEffect(() => {
+        fetch('http://localhost:3001/cursos') 
+        .then(response => response.json())
+        .then(data => {
+          console.log('Cursos obtenidos:', data);
+          setCursos(data);
+        })
+        .catch(error => console.error('Error al obtener los cursos:', error));
+      }, []);
 
   // Manejar cambios de inputs
   const handleChange = (e) => {
@@ -112,9 +125,9 @@ const NewPublication = () => {
                 required
               >
                 <option value="">-- Selecciona un curso --</option>
-                {cursos.map((curso, idx) => (
-                  <option key={idx} value={curso}>
-                    {curso}
+                {cursos.map((curso) => (
+                  <option key={curso.id} value={curso.id}>
+                    {curso.nombre} Seccion {curso.seccion}
                   </option>
                 ))}
               </select>
@@ -132,9 +145,9 @@ const NewPublication = () => {
                 required
               >
                 <option value="">-- Selecciona un catedrático --</option>
-                {catedraticos.map((catedratico, idx) => (
-                  <option key={idx} value={catedratico}>
-                    {catedratico}
+                {catedraticos.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.nombre}
                   </option>
                 ))}
               </select>

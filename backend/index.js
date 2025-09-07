@@ -60,6 +60,28 @@ app.post('/login', (req, res) => {
   });
 });
 
+  app.get('/catedraticos', (req, res) => {
+  db.query('SELECT * FROM catedratico', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los catedráticos:', err);
+      res.status(500).json({ error: 'Error al obtener los catedráticos' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+  app.get('/cursos', (req, res) => {
+  db.query('SELECT * FROM curso', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los cursos:', err);
+      res.status(500).json({ error: 'Error al obtener los cursos' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
 app.listen(3001, () => {
   console.log('Servidor corriendo en http://localhost:3001');
 });

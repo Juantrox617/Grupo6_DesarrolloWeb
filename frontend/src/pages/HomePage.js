@@ -1,5 +1,5 @@
 // src/pages/HomePage.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
@@ -8,7 +8,27 @@ import '../styles/TextInput.css';
 const HomePage = () => {
   const navigate = useNavigate();
   const [publicaciones, setPublicaciones] = useState([]); // Inicialmente vacío, se llenará desde el backend
-  const user = JSON.parse(localStorage.getItem('user')); // Obtiene el usuario autenticado
+  const [catedraticos, setCatedraticos] = useState([]);
+  const [cursos, setCursos] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/catedraticos') 
+    .then(response => response.json())
+    .then(data => {
+      console.log('Catedráticos obtenidos:', data);
+      setCatedraticos(data);
+    })
+    .catch(error => console.error('Error al obtener los catedráticos:', error));
+  }, []);
+  useEffect(() => {
+    fetch('http://localhost:3001/cursos') 
+    .then(response => response.json())
+    .then(data => {
+      console.log('Cursos obtenidos:', data);
+      setCursos(data);
+    })
+    .catch(error => console.error('Error al obtener los cursos:', error));
+  }, []);
 
   return (
     <div style={styles.container}>
@@ -43,14 +63,24 @@ const HomePage = () => {
           <div style={styles.inputGroup}>
             <label style={styles.label}>Por Curso</label>
             <select style={styles.select}>
-              <option>Selecciona un curso</option>
+              <option value="">Selecciona un curso</option>
+              {cursos.map((curso) => (
+                <option key={curso.id} value={curso.id}>
+                  {curso.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Por Catedrático</label>
             <select style={styles.select}>
-              <option>Selecciona un catedrático</option>
+              <option value="">Selecciona un catedrático</option>
+              {catedraticos.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.nombre}
+                </option>
+              ))}
             </select>
           </div>
 
