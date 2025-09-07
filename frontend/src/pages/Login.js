@@ -1,25 +1,29 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+
+import axios from 'axios';
 
 function Login() {
-  const [registro, setRegistro] = useState('');
+  const [carnet, setCarnet] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await api.post('/auth/login', {
-        registro_academico: registro,
-        password
-      });
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      navigate('/home');
-    } catch (error) {
-      alert('Error: ' + (error.response?.data?.message || 'Credenciales incorrectas'));
-    }
+    
+    axios.post('http://localhost:3001/login', {
+      carnet: carnet,
+      contrasena: password
+    })
+    .then((response) => {
+      console.log('Inicio de sesión exitoso');
+      console.log('Respuesta del servidor:', response.data);
+      alert('Inicio de sesión exitoso');
+      navigate('/homepage');
+    })
+    .catch((error) => {
+      console.error('Error al iniciar sesión:', error);
+    });
   };
 
   return (
@@ -32,8 +36,8 @@ function Login() {
             <input
               type="text"
               placeholder="000000000"
-              value={registro}
-              onChange={(e) => setRegistro(e.target.value)}
+              value={carnet}
+              onChange={(e) => setCarnet(e.target.value)}
               style={styles.input}
               required
             />

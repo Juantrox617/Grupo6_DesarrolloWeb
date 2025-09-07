@@ -1,45 +1,49 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+
+
+import Axios from 'axios';
+
 
 function Register() {
-  const [form, setForm] = useState({
-    registro_academico: '',
-    nombres: '',
-    apellidos: '',
-    correo: '',
-    password: ''
-  });
-  const navigate = useNavigate();
+  const [carnet, setCarnet] = useState('');
+  const [Nombres, setNombres] = useState('');
+  const [Apellidos, setApellidos] = useState('');
+  const [Correo, setCorreo] = useState('');
+  const [Contrasena, setContrasena] = useState('');
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const add = (e) => {
     e.preventDefault();
-    try {
-      await api.post('/auth/register', form);
-      alert('Usuario registrado con éxito');
-      navigate('/');
-    } catch (error) {
+    Axios.post('http://localhost:3001/create', {
+      carnet: carnet,
+      nombres: Nombres,
+      apellidos: Apellidos,
+      correo: Correo,
+      contrasena: Contrasena
+    }).then(() => {
+      alert("Usuario registrado con éxito");
+      
+    }).catch((error) => {
       alert('Error: ' + (error.response?.data?.message || 'No se pudo registrar'));
-    }
-  };
+      console.error('Error al insertar el usuario:', error);
+    });
+  }
+
+
+  // ...
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Crear Cuenta</h2>
-        <form onSubmit={handleSubmit}>
+  <form>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
             <input
-              name="registro_academico"
+              name="carnet"
               type="text"
               placeholder=""
-              value={form.registro_academico}
-              onChange={handleChange}
+              value={carnet}
+              onChange={(e) => setCarnet(e.target.value)}
               style={styles.input}
               required
             />
@@ -50,8 +54,8 @@ function Register() {
               name="nombres"
               type="text"
               placeholder=""
-              value={form.nombres}
-              onChange={handleChange}
+              value={Nombres}
+              onChange={(e) => setNombres(e.target.value)}
               style={styles.input}
               required
             />
@@ -62,8 +66,8 @@ function Register() {
               name="apellidos"
               type="text"
               placeholder=""
-              value={form.apellidos}
-              onChange={handleChange}
+              value={Apellidos}
+              onChange={(e) => setApellidos(e.target.value)}
               style={styles.input}
               required
             />
@@ -74,8 +78,8 @@ function Register() {
               name="correo"
               type="email"
               placeholder="correo@ingenieria.usac.edu.gt"
-              value={form.correo}
-              onChange={handleChange}
+              value={Correo}
+              onChange={(e) => setCorreo(e.target.value)}
               style={styles.input}
               required
             />
@@ -83,16 +87,16 @@ function Register() {
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
             <input
-              name="password"
+              name="contrasena"
               type="password"
               placeholder=""
-              value={form.password}
-              onChange={handleChange}
+              value={Contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
               style={styles.input}
               required
             />
           </div>
-          <button type="submit" style={styles.button}>Crear Cuenta</button>
+          <button onClick={add} type="button" style={styles.button}>Crear Cuenta</button>
         </form>
         <p style={styles.text}>
           ¿Ya tienes cuenta?{' '}

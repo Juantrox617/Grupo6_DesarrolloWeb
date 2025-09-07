@@ -1,24 +1,69 @@
+
 const express = require('express');
-const cors = require('cors');
-const authRoutes = require('./routes/authRoutes');
-require('dotenv').config();
-
 const app = express();
-
-// Middleware: permite recibir JSON y peticiones del frontend
+const mysql = require('mysql');
+const cors = require('cors');
 app.use(cors());
 app.use(express.json());
 
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.json({ message: 'Backend activo. Usa /api/auth/login o /api/auth/recuperar-contrasena' });
+
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '0000',
+  database: 'foro',
 });
 
-// Puerto
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+app.post('/create', (req, res) => {
+  const carnet = req.body.carnet;
+  const nombres = req.body.nombres;
+  const apellidos = req.body.apellidos;
+  const contrasena = req.body.contrasena;
+  const correo = req.body.correo;
+
+  db.query('INSERT INTO usuario (carnet, nombres, apellidos, contrasena, correo) VALUES (?, ?, ?, ?, ?)', [carnet, nombres, apellidos, contrasena, correo], (err, result) => {
+    if (err) {
+      console.error('Error al insertar el usuario:', err);
+      res.status(500).json({ error: 'Error al insertar el usuario' });
+      
+    } else {
+      console.log('Usuario creado exitosamente');
+      res.status(201).json({ message: 'Usuario creado exitosamente' });
+    }
+  });
 });
+
+app.get('/usuario', (req, res) => {
+  db.query('SELECT * FROM usuario', (err, result) => {
+    if (err) {
+      console.error('Error al obtener los usuarios:', err);
+      
+    } else {
+      res.send(result);
+    }
+  });
+});
+app.post('/login', (req, res) => {
+  const carnet = req.body.carnet;
+  const Contrasena = req.body.contrasena;
+  db.query('SELECT * FROM usuario WHERE carnet = ? AND contrasena = ?', [carnet, Contrasena], (err, results) => {
+    if (err) {
+      console.error('Error al autenticar el usuario:', err);
+      return res.status(500).json({ error: 'Error al autenticar el usuario' });
+    }
+    if (results.length > 0) {
+      return res.status(200).json({ message: 'Autenticación exitosa' });
+    } else {
+      return res.status(401).json({ message: 'Carnet o contraseña incorrectos' });
+    }
+  });
+});
+
+app.listen(3001, () => {
+  console.log('Servidor corriendo en http://localhost:3001');
+});
+
+
+
+  
