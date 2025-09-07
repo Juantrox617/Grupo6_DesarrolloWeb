@@ -7,6 +7,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import HomePage from './pages/HomePage';
 import MyProfile from './pages/MyProfile';
 import Profiles from './pages/Profiles';
+import NewPublication from './pages/NewPublication';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/profiles" element={<Profiles />} />
+          <Route path="/crear-publicacion" element={<NewPublication />} />
         </Routes>
       </div>
     </Router>
