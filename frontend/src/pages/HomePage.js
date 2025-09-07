@@ -129,19 +129,19 @@ const HomePage = () => {
                   </p>
                   <div style={styles.postFooter}>
                     <span style={styles.postUser}>
-                      Usuario: @{post.usuario?.nombres || 'Usuario'}
+                      Usuario: @{publicacion.usuario?.nombres || 'Usuario'}
                     </span>
                     <span style={styles.postDate}>
-                      Fecha: {new Date(post.fecha_creacion).toLocaleDateString()}
+                      Fecha: {new Date(publicacion.fecha_creacion).toLocaleDateString()}
                     </span>
                   </div>
 
                   {/* 🔽 Aquí agregamos la sección de comentarios */}
                   <div style={{ marginTop: "15px" }}>
                     <h4 style={{ marginBottom: "8px" }}>Comentarios:</h4>
-                    {post.comentarios && post.comentarios.length > 0 ? (
+                    {publicacion.comentarios && publicacion.comentarios.length > 0 ? (
                       <ul style={{ paddingLeft: "20px", margin: 0 }}>
-                        {post.comentarios.map((c) => (
+                        {publicacion.comentarios.map((c) => (
                           <li key={c.id} style={{ marginBottom: "6px", fontSize: "14px" }}>
                             <strong>@{c.usuario?.nombres || "Anon"}:</strong> {c.texto}
                           </li>
