@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
+import PubDetail from './PubDetail';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -137,22 +138,12 @@ const HomePage = () => {
                   </div>
 
                   {/* 🔽 Aquí agregamos la sección de comentarios */}
-                  <div style={{ marginTop: "15px" }}>
-                    <h4 style={{ marginBottom: "8px" }}>Comentarios:</h4>
-                    {publicacion.comentarios && publicacion.comentarios.length > 0 ? (
-                      <ul style={{ paddingLeft: "20px", margin: 0 }}>
-                        {publicacion.comentarios.map((c) => (
-                          <li key={c.id} style={{ marginBottom: "6px", fontSize: "14px" }}>
-                            <strong>@{c.usuario?.nombres || "Anon"}:</strong> {c.texto}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p style={{ fontSize: "14px", color: "#666" }}>
-                        No hay comentarios aún.
-                      </p>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => navigate(`/publicacion/${publicacion.id}`)}
+                    style={styles.verDetallesButton}
+                  >
+                    💬 Ver comentarios ({publicacion.comentarios?.length || 0})
+                  </button>
                 </div>
               ))
             ) : (
@@ -176,6 +167,19 @@ const styles = {
     margin: 0,
     padding: 0,
   },
+  verDetallesButton: {
+    background: '#17a2b8',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    marginTop: '15px',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    transition: 'background 0.3s'
+  },
+
   header: {
     backgroundColor: '#2d6a4f',
     color: 'white',
