@@ -20,6 +20,7 @@ function Login() {
       console.log('Inicio de sesión exitoso');
       console.log('Respuesta del servidor:', response.data);
       alert('Inicio de sesión exitoso');
+      localStorage.setItem('user', JSON.stringify(response.data.usuario)); // Guardar estado de inicio de sesión
       navigate('/homepage');
     })
     .catch((error) => {
@@ -27,6 +28,7 @@ function Login() {
       alert('Credenciales incorrectas');
     });
   };
+  localStorage.setItem('userCarnet', carnet); // Guardar el carnet en localStorage
 
   return (
     <div style={styles.container}>

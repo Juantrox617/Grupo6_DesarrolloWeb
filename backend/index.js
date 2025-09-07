@@ -53,7 +53,7 @@ app.post('/login', (req, res) => {
       return res.status(500).json({ error: 'Error al autenticar el usuario' });
     }
     if (results.length > 0) {
-      return res.status(200).json({ message: 'Autenticación exitosa' });
+      return res.status(200).json({ message: 'Autenticación exitosa', usuario: results[0] });
     } else {
       return res.status(401).json({ message: 'Carnet o contraseña incorrectos' });
     }

@@ -11,6 +11,7 @@ function MyProfile() {
   const [cursos, setCursos] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
+    carnet: '',
     nombres: '',
     apellidos: '',
     correo: ''
@@ -19,52 +20,34 @@ function MyProfile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        // ✅ Comenta esta validación temporalmente para ver el diseño
-        // if (!token) {
-        //   navigate('/');
-        //   return;
-        // }
-
-        // 🔁 Descomenta estas líneas cuando el backend esté listo
-        // const userRes = await api.get('/auth/profile');
-        // const userData = userRes.data;
-        // setUser(userData);
-        // setFormData({
-        //   nombres: userData.nombres || '',
-        //   apellidos: userData.apellidos || '',
-        //   correo: userData.correo || ''
-        // });
-
-        // Simulación temporal para ver el diseño
-        setUser({ registro_academico: '202400023' });
-        setFormData({
-          nombres: 'Ana María',
-          apellidos: 'López González',
-          correo: 'ana@usac.edu.gt'
-        });
-        setCursosAprobados([
-          { id: 1, codigo: 'CS101', nombre: 'Programación 1', creditos: 5 },
-          { id: 2, codigo: 'MA101', nombre: 'Matemática Discreta', creditos: 4 }
-        ]);
-        setCursos([
-          { id: 1, codigo: 'CS101', nombre: 'Programación 1', creditos: 5 },
-          { id: 2, codigo: 'MA101', nombre: 'Matemática Discreta', creditos: 4 },
-          { id: 3, codigo: 'CS102', nombre: 'Programación 2', creditos: 5 }
-        ]);
-      } catch (error) {
-        console.error('Error al cargar datos:', error);
-        // ✅ Comenta el alert para que no moleste en diseño
-        // alert('Error al cargar el perfil.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [navigate]);
+  const usuarioGuardado = JSON.parse(localStorage.getItem('user'));
+  if (!usuarioGuardado) return; // Redirige al login si no hay usuario
+  fetch(`http://localhost:3001/usuario/${usuarioGuardado.carnet}`)
+    .then(response => response.json())
+    .then(data => {
+      setUser(Array.isArray(data) ? data[0] : data);
+    })
+    .catch(error => console.error('Error al obtener el usuario:', error));
+}, []);
+    useEffect(() => {
+  if (user) {
+    setFormData({
+      carnet: user.carnet || '',
+      nombres: user.nombres || '',
+      apellidos: user.apellidos || '',
+      correo: user.correo || ''
+    });
+  }
+}, [user]);
+  useEffect(() => {
+        fetch('http://localhost:3001/cursos') 
+        .then(response => response.json())
+        .then(data => {
+          console.log('Cursos obtenidos:', data);
+          setCursos(data);
+        })
+        .catch(error => console.error('Error al obtener los cursos:', error));
+      }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -73,10 +56,10 @@ function MyProfile() {
   const handleSave = async () => {
     try {
       // 🔁 Descomenta cuando el backend esté listo
-      // const res = await api.put('/auth/profile', formData);
-      // const updatedUser = { ...user, ...res.data };
-      // setUser(updatedUser);
-      // localStorage.setItem('user', JSON.stringify(updatedUser));
+      const res = await api.put('/auth/profile', formData);
+      const updatedUser = { ...user, ...res.data };
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       setEditMode(false);
       alert('Perfil actualizado (simulado)');
     } catch (error) {
@@ -102,8 +85,9 @@ function MyProfile() {
   };
 
   const totalCreditos = cursosAprobados.reduce((sum, c) => sum + c.creditos, 0);
+  
 
-  if (loading) return <div style={styles.loading}>Cargando...</div>;
+  
 
   return (
     <>
@@ -111,35 +95,41 @@ function MyProfile() {
       <div style={styles.container}>
         <div style={styles.card}>
           <h2 style={styles.title}>Mi Perfil</h2>
-          <div style={styles.info}><strong>Registro:</strong> {user?.registro_academico}</div>
+          
 
-          {editMode ? (
-            <>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Nombres</label>
-                <input name="nombres" value={formData.nombres} onChange={handleChange} style={styles.input} />
-              </div>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Apellidos</label>
-                <input name="apellidos" value={formData.apellidos} onChange={handleChange} style={styles.input} />
-              </div>
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Correo</label>
-                <input name="correo" value={formData.correo} onChange={handleChange} style={styles.input} type="email" />
-              </div>
-              <button onClick={handleSave} style={styles.button}>Guardar</button>
-              <button onClick={() => setEditMode(false)} style={{ ...styles.button, backgroundColor: '#95d5b2', marginLeft: '10px' }}>
-                Cancelar
-              </button>
-            </>
-          ) : (
-            <>
-              <div style={styles.info}><strong>Nombres:</strong> {formData.nombres}</div>
-              <div style={styles.info}><strong>Apellidos:</strong> {formData.apellidos}</div>
-              <div style={styles.info}><strong>Correo:</strong> {formData.correo}</div>
-              <button onClick={() => setEditMode(true)} style={styles.button}>Editar Perfil</button>
-            </>
-          )}
+         {editMode ? (
+  <>
+  <div style={styles.inputGroup}> 
+      <label style={styles.label}>Registro</label>
+      <input name="registro" value={formData.carnet} onChange={handleChange} style={styles.input} />
+    </div>
+    <div style={styles.inputGroup}>
+
+      <label style={styles.label}>Nombres</label>
+      <input name="nombres" value={formData.nombres} onChange={handleChange} style={styles.input} />
+    </div>
+    <div style={styles.inputGroup}>
+      <label style={styles.label}>Apellidos</label>
+      <input name="apellidos" value={formData.apellidos} onChange={handleChange} style={styles.input} />
+    </div>
+    <div style={styles.inputGroup}>
+      <label style={styles.label}>Correo</label>
+      <input name="correo" value={formData.correo} onChange={handleChange} style={styles.input} type="email" />
+    </div>
+    <button onClick={handleSave} style={styles.button}>Guardar</button>
+    <button onClick={() => setEditMode(false)} style={{ ...styles.button, backgroundColor: '#95d5b2', marginLeft: '10px' }}>
+      Cancelar
+    </button>
+  </>
+) : (
+  <>
+  <div style={styles.info}><strong>Registro:</strong> {user?.carnet}</div>
+    <div style={styles.info}><strong>Nombres:</strong> {user?.nombres}</div>
+    <div style={styles.info}><strong>Apellidos:</strong> {user?.apellidos}</div>
+    <div style={styles.info}><strong>Correo:</strong> {user?.correo}</div>
+    <button onClick={() => setEditMode(true)} style={styles.button}>Editar Perfil</button>
+  </>
+)} 
 
           <div style={styles.section}>
             <h3 style={styles.sectionTitle}>Cursos Aprobados ({cursosAprobados.length})</h3>
