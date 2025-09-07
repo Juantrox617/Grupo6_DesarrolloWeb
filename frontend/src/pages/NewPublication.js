@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import Axios from "axios";
+
 
 const NewPublication = () => {
   const navigate = useNavigate();
@@ -13,7 +13,15 @@ const NewPublication = () => {
     mensaje: "",
     tipo: "",       // curso o catedrático
     referente: "",  // nombre del curso o catedrático
-    fecha: new Date().toISOString().split("T")[0], // fecha de hoy
+    fecha: (() => {
+      const now = new Date(); 
+      const dia = String(now.getDate()).padStart(2, '0');
+      const mes = String(now.getMonth() + 1).padStart(2, '0');
+      const anio = now.getFullYear();
+      const hora = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${anio} Hora: ${hora}:${min}`;
+    })(), 
   });
 
   // Simulación de carga de cursos y catedráticos
@@ -44,21 +52,7 @@ const NewPublication = () => {
       })
       .catch(error => console.error('Error al guardar la publicación:', error));
     }, []);
-    const add = (e) => {
-    e.preventDefault();
-    Axios.post('http://localhost:3001/publicaciones', {
-      titulo: formData.titulo,
-      mensaje: formData.mensaje,
-      tipo: formData.tipo,
-      referente: formData.referente,
-      fecha: formData.fecha
-    }).then(() => {
-      alert("Publicación guardada con éxito");
-    }).catch((error) => {
-      alert('Error: ' + (error.response?.data?.message || 'No se pudo guardar la publicación'));
-      console.error('Error al insertar la publicación:', error);
-    });
-  }
+    
 
    
 
@@ -182,17 +176,8 @@ const NewPublication = () => {
             </div>
           )}
 
-          {/* Campo de fecha */}
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Fecha</label>
-            <input
-              type="date"
-              name="fecha"
-              value={formData.fecha}
-              readOnly
-              style={styles.input}
-            />
-          </div>
+          
+          
 
           <div style={styles.actions}>
             <button type="submit" style={styles.submitButton}>

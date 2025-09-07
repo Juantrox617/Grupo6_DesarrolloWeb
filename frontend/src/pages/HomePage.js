@@ -116,14 +116,14 @@ const HomePage = () => {
 
           <div style={styles.postList}>
             {publicaciones.length > 0 ? (
-              publicaciones.map((post) => (
-                <div key={post.id} style={styles.postCard}>
+              publicaciones.map((publicacion) => (
+                <div key={publicacion.id} style={styles.postCard}>
                   <p style={styles.postText}>
-                    <em>{post.mensaje}</em>
+                    <em>{publicacion.mensaje}</em>
                   </p>
                   <div style={styles.postFooter}>
-                    <span style={styles.postUser}>Usuario: @{post.usuario?.nombres || 'Usuario'}</span>
-                    <span style={styles.postDate}>Fecha: {new Date(post.fecha_creacion).toLocaleDateString()}</span>
+                    <span style={styles.postUser}>Usuario: @{publicacion.usuario?.nombres || 'Usuario'}</span>
+                    <span style={styles.postDate}>Fecha: {publicacion.fecha}</span>
                   </div>
                 </div>
               ))
@@ -153,6 +153,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
+    //eslint-disable-next-line
     padding: '0 40px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
