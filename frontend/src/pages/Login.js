@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-Logo-login.png';
+import '../styles/TextInput.css'; // ✅ Importa el CSS con el nuevo botón
 import axios from 'axios';
 
 function Login() {
-  const [carnet, setCarnet] = useState(''); 
+  const [carnet, setCarnet] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
@@ -30,42 +31,50 @@ function Login() {
 
   return (
     <div style={styles.container}>
-      {/* Logo arriba del cuadro de login, fuera del recuadro */}
+      {/* Logo arriba del cuadro de login */}
       <img src={logo} alt="Logo Kursum" style={styles.logoOutside} />
 
       {/* Cuadro de login */}
       <div style={styles.card}>
         <h2 style={styles.title}>Iniciar Sesión</h2>
         <form onSubmit={handleSubmit}>
+          {/* Input Registro Académico */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 type="text"
                 placeholder="000000000"
                 value={carnet}
                 onChange={(e) => setCarnet(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
+          {/* Separación */}
+          <div style={{ height: '12px' }}></div>
+
+          {/* Input Contraseña */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 type="password"
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
-          <button type="submit" style={styles.button}>Iniciar Sesión</button>
+          {/* Botón con animación */}
+          <button type="submit" className="button-login">
+            Iniciar Sesión
+          </button>
         </form>
 
         <p style={styles.text}>
@@ -106,34 +115,24 @@ const styles = {
   },
   title: {
     textAlign: 'center',
-    color: '#081c15',
-    marginBottom: '20px',
-    fontWeight: '600'
+    color: '#1b4332',
+    fontSize: '28px',
+    fontWeight: '700',
+    marginBottom: '32px'
   },
   inputGroup: {
-    marginBottom: '16px',
+    marginBottom: '8px',
     textAlign: 'left'
   },
   label: {
     display: 'block',
-    marginBottom: '6px',
+    marginBottom: '8px',
     color: '#1b4332',
-    fontWeight: '500'
-  },
-  button: {
-    backgroundColor: '#1b4332',
-    color: 'white',
-    border: 'none',
-    padding: '12px',
-    width: '100%',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '16px',
     fontWeight: '500',
-    marginTop: '10px'
+    fontSize: '14px'
   },
   text: {
-    marginTop: '16px',
+    marginTop: '20px',
     textAlign: 'center',
     color: '#081c15',
     fontSize: '14px'

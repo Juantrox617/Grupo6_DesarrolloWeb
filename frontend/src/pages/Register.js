@@ -1,5 +1,7 @@
 // src/pages/Register.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/TextInput.css'; // ✅ Usa el diseño común
 import Axios from 'axios';
 
 function Register() {
@@ -8,6 +10,7 @@ function Register() {
   const [Apellidos, setApellidos] = useState('');
   const [Correo, setCorreo] = useState('');
   const [Contrasena, setContrasena] = useState('');
+  const navigate = useNavigate();
 
   const add = (e) => {
     e.preventDefault();
@@ -20,6 +23,7 @@ function Register() {
     })
     .then(() => {
       alert("Usuario registrado con éxito");
+      navigate('/'); // Redirige al login después del registro
     })
     .catch((error) => {
       alert('Error: ' + (error.response?.data?.message || 'No se pudo registrar'));
@@ -32,82 +36,89 @@ function Register() {
       <div style={styles.card}>
         <h2 style={styles.title}>Crear Cuenta</h2>
         <form onSubmit={add}>
+          {/* Registro Académico */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 name="carnet"
                 type="text"
                 placeholder="000000000"
                 value={carnet}
                 onChange={(e) => setCarnet(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
+          {/* Nombres */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Nombres</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 name="nombres"
                 type="text"
-                placeholder="Ana María"
+                placeholder=""
                 value={Nombres}
                 onChange={(e) => setNombres(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
+          {/* Apellidos */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Apellidos</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 name="apellidos"
                 type="text"
-                placeholder="López González"
+                placeholder=""
                 value={Apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
+          {/* Correo Electrónico */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Correo Electrónico</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 name="correo"
                 type="email"
                 placeholder="correo@ingenieria.usac.edu.gt"
                 value={Correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
+          {/* Contraseña */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
-            <div className="textInputWrapper">
+            <div className="group">
               <input
                 name="contrasena"
                 type="password"
                 placeholder="Contraseña"
                 value={Contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
-                className="textInput"
+                className="input"
                 required
               />
             </div>
           </div>
 
-          <button type="submit" style={styles.button}>Crear Cuenta</button>
+          <button type="submit" className="button-login">
+            Crear Cuenta
+          </button>
         </form>
 
         <p style={styles.text}>
@@ -134,13 +145,15 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '400px',
+    textAlign: 'center'
   },
   title: {
     textAlign: 'center',
-    color: '#081c15',
-    marginBottom: '20px',
-    fontWeight: '600'
+    color: '1b4332',
+    fontSize: '28px',
+    fontWeight: '700',
+    marginBottom: '30px'
   },
   inputGroup: {
     marginBottom: '16px',
@@ -150,22 +163,11 @@ const styles = {
     display: 'block',
     marginBottom: '6px',
     color: '#1b4332',
-    fontWeight: '500'
-  },
-  button: {
-    backgroundColor: '#1b4332',
-    color: 'white',
-    border: 'none',
-    padding: '12px',
-    width: '100%',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '16px',
     fontWeight: '500',
-    marginTop: '10px'
+    fontSize: '14px'
   },
   text: {
-    marginTop: '16px',
+    marginTop: '20px',
     textAlign: 'center',
     color: '#081c15',
     fontSize: '14px'
