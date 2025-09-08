@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-Logo-login.png';
 import axios from 'axios';
+import '../styles/BrutalistInput.css';
 
 function Login() {
   const [carnet, setCarnet] = useState(''); 
@@ -39,29 +40,31 @@ function Login() {
         <form onSubmit={handleSubmit}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
-            <div className="textInputWrapper">
+            <div className="brutalist-container">
               <input
                 type="text"
                 placeholder="000000000"
                 value={carnet}
                 onChange={(e) => setCarnet(e.target.value)}
-                className="textInput"
+                className="brutalist-input"
                 required
               />
+              <label className="brutalist-label">Registro Académico</label>
             </div>
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
-            <div className="textInputWrapper">
+            <div className="brutalist-container">
               <input
                 type="password"
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="textInput"
+                className="brutalist-input"
                 required
               />
+              <label className="brutalist-label">Contraseña</label>
             </div>
           </div>
 
