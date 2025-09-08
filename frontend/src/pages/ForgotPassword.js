@@ -1,6 +1,7 @@
 // src/pages/ForgotPassword.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/TextInput.css'; // ✅ Usa el diseño común
 import api from '../services/api';
 
 function ForgotPassword() {
@@ -35,56 +36,65 @@ function ForgotPassword() {
     <div style={styles.container}>
       <div style={styles.card}>
         <h2 style={styles.title}>Recuperar Contraseña</h2>
+
         {step === 1 ? (
           <form onSubmit={handleVerify}>
+            {/* Registro Académico */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Registro Académico</label>
-              <div className="textInputWrapper">
+              <div className="group">
                 <input
                   type="text"
                   placeholder="000000000"
                   value={registro}
                   onChange={(e) => setRegistro(e.target.value)}
-                  className="textInput"
+                  className="input"
                   required
                 />
               </div>
             </div>
 
+            {/* Correo Electrónico */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Correo Electrónico</label>
-              <div className="textInputWrapper">
+              <div className="group">
                 <input
                   type="email"
                   placeholder="correo@ingenieria.usac.edu.gt"
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
-                  className="textInput"
+                  className="input"
                   required
                 />
               </div>
             </div>
 
-            <button type="submit" style={styles.button}>Verificar</button>
+            <button type="submit" className="button-login">
+              Verificar
+            </button>
           </form>
         ) : (
           <form onSubmit={handleChangePassword}>
+            {/* Nueva Contraseña */}
             <div style={styles.inputGroup}>
               <label style={styles.label}>Nueva Contraseña</label>
-              <div className="textInputWrapper">
+              <div className="group">
                 <input
                   type="password"
                   placeholder="Nueva contraseña"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="textInput"
+                  className="input"
                   required
                 />
               </div>
             </div>
-            <button type="submit" style={styles.button}>Reestablecer</button>
+            <button type="submit" className="button-login">
+              Reestablecer
+            </button>
           </form>
         )}
+
         <p style={styles.text}>
           <a href="/" style={styles.link}>← Volver al inicio</a>
         </p>
@@ -108,13 +118,15 @@ const styles = {
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '400px',
+    textAlign: 'center'
   },
   title: {
     textAlign: 'center',
-    color: '#081c15',
-    marginBottom: '20px',
-    fontWeight: '600'
+    color: '#1b4332',
+    fontSize: '28px',
+    fontWeight: '700',
+    marginBottom: '30px'
   },
   inputGroup: {
     marginBottom: '16px',
@@ -124,22 +136,11 @@ const styles = {
     display: 'block',
     marginBottom: '6px',
     color: '#1b4332',
-    fontWeight: '500'
-  },
-  button: {
-    backgroundColor: '#1b4332',
-    color: 'white',
-    border: 'none',
-    padding: '12px',
-    width: '100%',
-    borderRadius: '6px',
-    cursor: 'pointer',
-    fontSize: '16px',
     fontWeight: '500',
-    marginTop: '10px'
+    fontSize: '14px'
   },
   text: {
-    marginTop: '16px',
+    marginTop: '20px',
     textAlign: 'center',
     color: '#081c15',
     fontSize: '14px'
