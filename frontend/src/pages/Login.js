@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-Logo-login.png';
 import '../styles/TextInput.css'; // ✅ Importa el CSS con el nuevo botón
 import axios from 'axios';
+import '../styles/BrutalistInput.css';
 
 function Login() {
   const [carnet, setCarnet] = useState('');
@@ -41,15 +42,24 @@ function Login() {
           {/* Input Registro Académico */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Registro Académico</label>
+<<<<<<< HEAD
             <div className="group">
+=======
+            <div className="brutalist-container">
+>>>>>>> c46fa09cbec12a8020a296660a77d220ec387a79
               <input
                 type="text"
                 placeholder="000000000"
                 value={carnet}
                 onChange={(e) => setCarnet(e.target.value)}
+<<<<<<< HEAD
                 className="input"
+=======
+                className="brutalist-input"
+>>>>>>> c46fa09cbec12a8020a296660a77d220ec387a79
                 required
               />
+              <label className="brutalist-label">Registro Académico</label>
             </div>
           </div>
 
@@ -59,15 +69,24 @@ function Login() {
           {/* Input Contraseña */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Contraseña</label>
+<<<<<<< HEAD
             <div className="group">
+=======
+            <div className="brutalist-container">
+>>>>>>> c46fa09cbec12a8020a296660a77d220ec387a79
               <input
                 type="password"
                 placeholder="Contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+<<<<<<< HEAD
                 className="input"
+=======
+                className="brutalist-input"
+>>>>>>> c46fa09cbec12a8020a296660a77d220ec387a79
                 required
               />
+              <label className="brutalist-label">Contraseña</label>
             </div>
           </div>
 
