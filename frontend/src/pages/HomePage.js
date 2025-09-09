@@ -11,15 +11,15 @@ const HomePage = () => {
   const [catedraticos, setCatedraticos] = useState([]);
   const [cursos, setCursos] = useState([]);
 
+  //CARGAR CATEDRATICOS. 
   useEffect(() => {
     fetch('http://localhost:3001/catedraticos')
       .then(response => response.json())
-      .then(data => {
-        console.log('Catedráticos obtenidos:', data);
-        setCatedraticos(data);
-      })
+      .then(data => setCatedraticos(data))
       .catch(error => console.error('Error al obtener los catedráticos:', error));
   }, []);
+
+  //cargar cursos. 
 
   useEffect(() => {
     fetch('http://localhost:3001/cursos')
@@ -30,9 +30,10 @@ const HomePage = () => {
       })
       .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
-
+// cargar publicaciones. 
   useEffect(() => {
     fetch('http://localhost:3001/getpublicaciones') 
+
       .then(response => response.json())
       .then(data => {
         console.log('Publicaciones obtenidas:', data);
@@ -40,7 +41,20 @@ const HomePage = () => {
       })
       .catch(error => console.error('Error al obtener las publicaciones:', error));
   }, []);
-
+  
+   // Formatear fecha
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Fecha desconocida';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
   return (
     <div style={styles.container}>
       <header style={styles.header}>

@@ -94,13 +94,33 @@ app.post('/login', (req, res) => {
   });
 });
 app.get('/getpublicaciones', (req, res) => {
-  db.query('SELECT * FROM publicacion', (err, result) => {
+
+  const query = `
+    SELECT 
+      p.id,
+      p.titulo,
+      p.mensaje,
+      p.hora_creado,
+      p.usu_carnet,
+      p.cur_id,
+      p.cat_id,
+      u.nombres,
+      u.apellidos,
+      c.nombre as curso_nombre,
+      cat.nombre as catedratico_nombre
+    FROM publicacion p
+    LEFT JOIN usuario u ON p.usu_carnet = u.carnet
+    LEFT JOIN curso c ON p.cur_id = c.id
+    LEFT JOIN catedratico cat ON p.cat_id = cat.id
+    ORDER BY p.hora_creado DESC;
+  `;
+
+  db.query(query, (err, result) => {
     if (err) {
       console.error('Error al obtener la publicación:', err);
-      res.status(500).json({ error: 'Error al obtener la publicación' });
-    } else {
-      res.send(result);
-    }
+      res.status(500).json({ error: 'Error al obtener la publicaciónes' });
+    } 
+    res.json(result);
   });
 });
   
