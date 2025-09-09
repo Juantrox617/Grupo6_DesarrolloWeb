@@ -197,6 +197,20 @@ app.get('/aprobados/:carnet', (req, res) => {
   );
 });
 
+app.get('/usuario/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  db.query('SELECT * FROM usuario WHERE carnet = ?', [carnet], (err, result) => {
+    if (err) {
+      console.error('Error al obtener el usuario:', err);
+      return res.status(500).json({ error: 'Error al obtener el usuario' });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(result[0]);
+  });
+});
+
 app.listen(3001, () => {
   console.log('Servidor corriendo en http://localhost:3001');
 });

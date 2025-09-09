@@ -5,6 +5,7 @@ import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
 import PubDetail from './PubDetail';
 
+
 const HomePage = () => {
   const navigate = useNavigate();
   const [publicaciones, setPublicaciones] = useState([]);
