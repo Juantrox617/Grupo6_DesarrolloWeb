@@ -126,7 +126,12 @@ const HomePage = () => {
           <div style={styles.postList}>
             {publicaciones.length > 0 ? (
               publicaciones.map((publicacion) => (
-                <div key={publicacion.id} style={styles.postCard}>
+                <div
+                  key={publicacion.id}
+                  style={styles.postCard}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
                   <p style={styles.postText}>
                     <em>{publicacion.mensaje}</em>
                   </p>
@@ -308,7 +313,7 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '16px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    boxShadow: '0 2px 6px rgba(255, 255, 255, 0.1)',
     transition: 'background-color 0.3s'
   },
   postList: {
@@ -323,6 +328,7 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     color: '#2d6a4f',
     border: '1px solid #eee',
+    transition: 'transform 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
   },
   postText: {
     fontSize: '15px',

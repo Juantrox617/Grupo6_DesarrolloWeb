@@ -304,8 +304,8 @@ const styles = {
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#95d5b2",
-    color: "#2d6a4f",
+    backgroundColor: "#40916c",
+    color: "#fcfcfcff",
     border: "1px solid #40916c",
     padding: "12px",
     borderRadius: "8px",
