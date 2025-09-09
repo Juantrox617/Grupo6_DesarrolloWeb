@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
+import '../styles/CreatePostButton.css';
 import PubDetail from './PubDetail';
 
 
@@ -117,7 +118,7 @@ const HomePage = () => {
           <div style={styles.createPostContainer}>
             <button
               onClick={() => navigate('/crear-publicacion')}
-              style={styles.createPostButton}
+              className="create-post-animated"
             >
               + Crear publicación
             </button>
