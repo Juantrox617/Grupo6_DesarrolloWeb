@@ -146,7 +146,57 @@ app.get('/getpublicaciones', (req, res) => {
     }
   });
 });
-  
+
+app.put('/usuario/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  const { nombres, apellidos, correo } = req.body;
+  console.log('Body recibido:', req.body);
+
+  db.query(
+    'UPDATE usuario SET nombres = ?, apellidos = ?, correo = ? WHERE carnet = ?',
+    [nombres, apellidos, correo, carnet],
+    (err, result) => {
+      if (err) {
+        console.error('Error al actualizar el usuario:', err);
+        return res.status(500).json({ error: 'Error al actualizar el usuario' });
+      }
+      res.json({ message: 'Usuario actualizado correctamente', nombres, apellidos, correo });
+    }
+  );
+});
+
+app.post('/aprobados', (req, res) => {
+  const { usu_carnet, cur_id } = req.body;
+  console.log('Body recibido:', req.body);
+  db.query(
+    'INSERT INTO aprobado (usu_carnet, cur_id, hora_aprobado) VALUES (?, ?, NOW( ))',
+    [usu_carnet, cur_id],
+    (err, result) => {
+      if (err) {
+        console.error('Error al agregar curso aprobado:', err);
+        return res.status(500).json({ error: 'Error al agregar curso aprobado' });
+      }
+      res.status(201).json({ message: 'Curso aprobado agregado correctamente', id: result.insertId });
+    }
+  );
+});
+app.get('/aprobados/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  db.query(
+    `SELECT c.id, c.codigo, c.nombre, c.creditos
+     FROM aprobado a
+     JOIN curso c ON a.cur_id = c.id
+     WHERE a.usu_carnet = ?`,
+    [carnet],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error al obtener cursos aprobados' });
+      }
+      res.json(result);
+    }
+  );
+});
+
 app.listen(3001, () => {
   console.log('Servidor corriendo en http://localhost:3001');
 });

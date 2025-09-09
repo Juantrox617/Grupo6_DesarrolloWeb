@@ -18,55 +18,57 @@ function MyProfile() {
   });
   const [selectedCursoId, setSelectedCursoId] = useState('');
   const [loading, setLoading] = useState(true);
-  const { usuarioLogueado } = useAuth();
+  const { usuarioLogueado, setUsuarioLogueado } = useAuth();
+useEffect(() => {
+    if (usuarioLogueado) {
+      setUser(usuarioLogueado);
+      setFormData({
+        nombres: usuarioLogueado.nombres,
+        apellidos: usuarioLogueado.apellidos,
+        correo: usuarioLogueado.correo
+      });
+      setLoading(false);
+    }
+  }, [usuarioLogueado]);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+  const fetchUser = async () => {
+    if (usuarioLogueado && usuarioLogueado.carnet) {
       try {
-        const token = localStorage.getItem('token');
-        // ✅ Comenta esta validación temporalmente para ver el diseño
-        // if (!token) {
-        //   navigate('/');
-        //   return;
-        // }
-
-        // 🔁 Descomenta estas líneas cuando el backend esté listo
-        // const userRes = await api.get('/auth/profile');
-        // const userData = userRes.data;
-        // setUser(userData);
-        // setFormData({
-        //   nombres: userData.nombres || '',
-        //   apellidos: userData.apellidos || '',
-        //   correo: userData.correo || ''
-        // });
-
-        // Simulación temporal para ver el diseño
-        setUser({ registro_academico: usuarioLogueado.carnet });
+        const res = await api.get(`/usuario/${usuarioLogueado.carnet}`);
+        setUser(res.data);
         setFormData({
-          nombres: usuarioLogueado.nombres,
-          apellidos: usuarioLogueado.apellidos,
-          correo: usuarioLogueado.correo
+          nombres: res.data.nombres,
+          apellidos: res.data.apellidos,
+          correo: res.data.correo
         });
-        setCursosAprobados([
-          { id: 1, codigo: 'CS101', nombre: 'Programación 1', creditos: 5 },
-          { id: 2, codigo: 'MA101', nombre: 'Matemática Discreta', creditos: 4 }
-        ]);
-        setCursos([
-          { id: 1, codigo: 'CS101', nombre: 'Programación 1', creditos: 5 },
-          { id: 2, codigo: 'MA101', nombre: 'Matemática Discreta', creditos: 4 },
-          { id: 3, codigo: 'CS102', nombre: 'Programación 2', creditos: 5 }
-        ]);
+        setUsuarioLogueado(res.data); // sincroniza el contexto global
       } catch (error) {
-        console.error('Error al cargar datos:', error);
-        // ✅ Comenta el alert para que no moleste en diseño
-        // alert('Error al cargar el perfil.');
+        console.error('Error al obtener usuario:', error);
       } finally {
         setLoading(false);
       }
-    };
+    } else {
+      setLoading(false);
+    }
+  };
+  fetchUser();
+  // eslint-disable-next-line
+}, []);
 
-    fetchUserData();
-  }, [navigate]);
+  useEffect(() => {
+      fetch('http://localhost:3001/cursos')
+        .then(response => response.json())
+        .then(data => {
+          console.log('Cursos obtenidos:', data);
+          setCursos(data);
+        })
+        .catch(error => console.error('Error al obtener los cursos:', error));
+    }, []);
+
+
+    
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,17 +76,35 @@ function MyProfile() {
 
   const handleSave = async () => {
     try {
+      console.log('Enviando:', formData);
       // 🔁 Descomenta cuando el backend esté listo
-        const res = await api.put('http://localhost:3001/create', formData);
-        const updatedUser = { ...user, ...res.data };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+      const res = await api.put(`/usuario/${usuarioLogueado.carnet}`, formData);
+      const updatedUser = { ...user, ...res.data };
+      setUser(updatedUser);
+      setUsuarioLogueado({ ...usuarioLogueado, ...formData });
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       setEditMode(false);
-      alert('Perfil actualizado (simulado)');
+      alert('Perfil actualizado');
     } catch (error) {
       alert('Error al actualizar: ' + (error.response?.data?.message || 'Intente de nuevo'));
     }
   };
+  const fetchCursosAprobados = async () => {
+  if (!user) return;
+  try {
+    const res = await api.get(`/aprobados/${user.carnet}`);
+    setCursosAprobados(res.data);
+  } catch (error) {
+    console.error('Error al obtener cursos aprobados:', error);
+  }
+};
+
+useEffect(() => {
+  if (user) {
+    fetchCursosAprobados();
+  }
+  // eslint-disable-next-line
+}, [user]);
 
   const handleAddCourse = async () => {
     if (!selectedCursoId) {
@@ -93,11 +113,10 @@ function MyProfile() {
     }
     try {
       // 🔁 Descomenta cuando el backend esté listo
-      // await api.post('/usuarios/cursos-aprobados', { curso_id: selectedCursoId });
-      // const res = await api.get('/usuarios/cursos-aprobados');
-      // setCursosAprobados(res.data);
+      await api.post('/aprobados', { usu_carnet: user.carnet, cur_id: selectedCursoId });
       setSelectedCursoId('');
-      alert('Curso agregado (simulado)');
+      alert('Curso agregado ');
+      fetchCursosAprobados();
     } catch (error) {
       alert('Error al agregar curso');
     }
@@ -105,7 +124,8 @@ function MyProfile() {
 
   const totalCreditos = cursosAprobados.reduce((sum, c) => sum + c.creditos, 0);
 
-  if (loading) return <div style={styles.loading}>Cargando...</div>;
+  // 1. En el render, usa SIEMPRE user en vez de usuarioLogueado:
+  if (loading || !user) return <div style={styles.loading}>Cargando...</div>;
 
   return (
     <>
@@ -113,7 +133,7 @@ function MyProfile() {
       <div style={styles.container}>
         <div style={styles.card}>
           <h2 style={styles.title}>Mi Perfil</h2>
-          <div style={styles.info}><strong>Registro:</strong> {usuarioLogueado.carnet}</div>
+          <div style={styles.info}><strong>Registro:</strong> {user.carnet}</div> {/* CAMBIO AQUÍ */}
 
           {editMode ? (
             <>
@@ -136,9 +156,9 @@ function MyProfile() {
             </>
           ) : (
             <>
-              <div style={styles.info}><strong>Nombres:</strong> {usuarioLogueado.nombres}</div>
-              <div style={styles.info}><strong>Apellidos:</strong> {usuarioLogueado.apellidos}</div>
-              <div style={styles.info}><strong>Correo:</strong> {usuarioLogueado.correo}</div>
+              <div style={styles.info}><strong>Nombres:</strong> {user.nombres}</div> {/* CAMBIO AQUÍ */}
+              <div style={styles.info}><strong>Apellidos:</strong> {user.apellidos}</div> {/* CAMBIO AQUÍ */}
+              <div style={styles.info}><strong>Correo:</strong> {user.correo}</div> {/* CAMBIO AQUÍ */}
               <button onClick={() => setEditMode(true)} style={styles.button}>Editar Perfil</button>
             </>
           )}
