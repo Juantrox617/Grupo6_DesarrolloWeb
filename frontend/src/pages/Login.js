@@ -1,6 +1,7 @@
 // src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; //importar el contexto de autenticacion. 
 import logo from '../assets/Kursum-Logo-login.png';
 import '../styles/TextInput.css'; // ✅ Importa el CSS con el nuevo botón
 import axios from 'axios';
@@ -9,6 +10,7 @@ function Login() {
   const [carnet, setCarnet] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { iniciarSesion} = useAuth(); // para guardar el usuario. 
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -20,6 +22,9 @@ function Login() {
     .then((response) => {
       console.log('Inicio de sesión exitoso');
       console.log('Respuesta del servidor:', response.data);
+      //Guardar el usuario en el contexto global. 
+      iniciarSesion(response.data.usuario);
+      
       alert('Inicio de sesión exitoso');
       navigate('/homepage');
     })
