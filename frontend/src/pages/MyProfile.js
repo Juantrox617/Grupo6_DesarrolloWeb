@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import api from '../services/api';
+import { useAuth } from "../context/AuthContext";
 
 function MyProfile() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ function MyProfile() {
   });
   const [selectedCursoId, setSelectedCursoId] = useState('');
   const [loading, setLoading] = useState(true);
+  const { usuarioLogueado } = useAuth();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -39,11 +41,11 @@ function MyProfile() {
         // });
 
         // Simulación temporal para ver el diseño
-        setUser({ registro_academico: '202400023' });
+        setUser({ registro_academico: usuarioLogueado.carnet });
         setFormData({
-          nombres: 'Ana María',
-          apellidos: 'López González',
-          correo: 'ana@usac.edu.gt'
+          nombres: usuarioLogueado.nombres,
+          apellidos: usuarioLogueado.apellidos,
+          correo: usuarioLogueado.correo
         });
         setCursosAprobados([
           { id: 1, codigo: 'CS101', nombre: 'Programación 1', creditos: 5 },
@@ -73,10 +75,10 @@ function MyProfile() {
   const handleSave = async () => {
     try {
       // 🔁 Descomenta cuando el backend esté listo
-      // const res = await api.put('/auth/profile', formData);
-      // const updatedUser = { ...user, ...res.data };
-      // setUser(updatedUser);
-      // localStorage.setItem('user', JSON.stringify(updatedUser));
+        const res = await api.put('http://localhost:3001/create', formData);
+        const updatedUser = { ...user, ...res.data };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
       setEditMode(false);
       alert('Perfil actualizado (simulado)');
     } catch (error) {
@@ -111,7 +113,7 @@ function MyProfile() {
       <div style={styles.container}>
         <div style={styles.card}>
           <h2 style={styles.title}>Mi Perfil</h2>
-          <div style={styles.info}><strong>Registro:</strong> {user?.registro_academico}</div>
+          <div style={styles.info}><strong>Registro:</strong> {usuarioLogueado.carnet}</div>
 
           {editMode ? (
             <>
@@ -134,9 +136,9 @@ function MyProfile() {
             </>
           ) : (
             <>
-              <div style={styles.info}><strong>Nombres:</strong> {formData.nombres}</div>
-              <div style={styles.info}><strong>Apellidos:</strong> {formData.apellidos}</div>
-              <div style={styles.info}><strong>Correo:</strong> {formData.correo}</div>
+              <div style={styles.info}><strong>Nombres:</strong> {usuarioLogueado.nombres}</div>
+              <div style={styles.info}><strong>Apellidos:</strong> {usuarioLogueado.apellidos}</div>
+              <div style={styles.info}><strong>Correo:</strong> {usuarioLogueado.correo}</div>
               <button onClick={() => setEditMode(true)} style={styles.button}>Editar Perfil</button>
             </>
           )}
