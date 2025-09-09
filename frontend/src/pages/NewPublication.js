@@ -1,92 +1,121 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Header from "../components/Header";
-
 
 const NewPublication = () => {
   const navigate = useNavigate();
+  const { usuarioLogueado } = useAuth();
+    useEffect(() => {
+  // 🔴 Redirección inmediata si no hay usuario válido
+  if (!usuarioLogueado || !usuarioLogueado.carnet) {
+    alert("Por favor, inicia sesión para crear una publicación.");
+    navigate("/login", { replace: true });
+    return null;
+  }}, [usuarioLogueado, navigate]);
+
   const [cursos, setCursos] = useState([]);
   const [catedraticos, setCatedraticos] = useState([]);
 
+  // ✅ Estado inicial SIN 'fecha', CON 'referente'
   const [formData, setFormData] = useState({
     titulo: "",
     mensaje: "",
-    tipo: "",       // curso o catedrático
-    referente: "",  // nombre del curso o catedrático
-    fecha: (() => {
-      const now = new Date(); 
-      const dia = String(now.getDate()).padStart(2, '0');
-      const mes = String(now.getMonth() + 1).padStart(2, '0');
-      const anio = now.getFullYear();
-      const hora = String(now.getHours()).padStart(2, '0');
-      const min = String(now.getMinutes()).padStart(2, '0');
-      return `${dia}/${mes}/${anio} Hora: ${hora}:${min}`;
-    })(), 
+    tipo: "",       // 'curso' o 'catedratico' (solo para UI)
+    referente: "",  // ID del curso o catedrático seleccionado
   });
 
-  // Simulación de carga de cursos y catedráticos
+  // Cargar catedráticos
   useEffect(() => {
-      fetch('http://localhost:3001/catedraticos') 
+    fetch('http://localhost:3001/catedraticos')
       .then(response => response.json())
       .then(data => {
         console.log('Catedráticos obtenidos:', data);
         setCatedraticos(data);
       })
-      .catch(error => console.error('Error al obtener los catedráticos:', error));
-    }, []);
-    useEffect(() => {
-        fetch('http://localhost:3001/cursos') 
-        .then(response => response.json())
-        .then(data => {
-          console.log('Cursos obtenidos:', data);
-          setCursos(data);
-        })
-        .catch(error => console.error('Error al obtener los cursos:', error));
-      }, []);
-       useEffect(() => {
-      fetch('http://localhost:3001/publicaciones') 
+      .catch(error => console.error('Error al obtener catedráticos:', error));
+  }, []);
+
+  // Cargar cursos
+  useEffect(() => {
+    fetch('http://localhost:3001/cursos')
       .then(response => response.json())
       .then(data => {
-        console.log('Publicacion guardada:', data);
-        setFormData(data);
+        console.log('Cursos obtenidos:', data);
+        setCursos(data);
       })
-      .catch(error => console.error('Error al guardar la publicación:', error));
-    }, []);
-    
+      .catch(error => console.error('Error al obtener cursos:', error));
+  }, []);
 
-   
-
-
-  // Manejar cambios de inputs
+  // Manejar cambios en inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
-  // Manejar envío de formulario
+  // ✅ Manejar envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Nueva publicación:", formData);
+    // Validar tipo
+    if (!formData.tipo) {
+      alert("Por favor, seleccione si la publicación es sobre un Curso o un Catedrático.");
+      return;
+    }
 
-    // Aquí conectas con tu backend real!!!
+    // Validar referente
+    if (!formData.referente) {
+      alert("Por favor, seleccione un curso o catedrático.");
+      return;
+    }
+
+    // Determinar cur_id y cat_id según el tipo
+    let cur_id = null;
+    let cat_id = null;
+
+    if (formData.tipo === "curso") {
+      cur_id = parseInt(formData.referente, 10);
+    } else if (formData.tipo === "catedratico") {
+      cat_id = parseInt(formData.referente, 10);
+    }
+
+    // ✅ Objeto final para enviar al backend — SIN 'tipo', SIN 'fecha'
+    const publicacion = {
+      titulo: formData.titulo,
+      mensaje: formData.mensaje,
+      usu_carnet: usuarioLogueado.carnet, // ✅ ¡IMPORTANTE! Usar carnet, no id
+      cur_id: cur_id,
+      cat_id: cat_id,
+    };
+
+    console.log("Enviando publicación:", publicacion);
+
+    // Enviar al backend
     fetch("http://localhost:3001/publicaciones", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(publicacion),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Error HTTP: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("Publicación creada:", data);
+        alert("¡Publicación creada exitosamente!");
         navigate("/homepage");
       })
-      .catch((err) => console.error("Error:", err));
+      .catch((err) => {
+        console.error("Error al crear publicación:", err);
+        alert("Hubo un error. Por favor, inténtalo de nuevo.");
+      });
   };
 
   return (
@@ -95,7 +124,15 @@ const NewPublication = () => {
       <main style={styles.main}>
         <h2 style={styles.title}>Crear nueva publicación</h2>
 
+        {/* Mostrar info del usuario logueado */}
+        <div style={styles.userInfo}>
+          <p>
+            <strong>Publicando como:</strong> {usuarioLogueado.nombres} {usuarioLogueado.apellidos} ({usuarioLogueado.carnet})
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Título */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Título</label>
             <input
@@ -108,6 +145,7 @@ const NewPublication = () => {
             />
           </div>
 
+          {/* Mensaje */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Mensaje</label>
             <textarea
@@ -119,7 +157,7 @@ const NewPublication = () => {
             />
           </div>
 
-          {/* Selector de tipo de publicación */}
+          {/* Selector de tipo: Curso o Catedrático */}
           <div style={styles.inputGroup}>
             <label style={styles.label}>Tipo de publicación</label>
             <select
@@ -135,10 +173,10 @@ const NewPublication = () => {
             </select>
           </div>
 
-          {/* Selector dinámico de referente */}
+          {/* Selector dinámico: Curso */}
           {formData.tipo === "curso" && (
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Curso</label>
+              <label style={styles.label}>Selecciona un Curso</label>
               <select
                 name="referente"
                 value={formData.referente}
@@ -149,16 +187,17 @@ const NewPublication = () => {
                 <option value="">-- Selecciona un curso --</option>
                 {cursos.map((curso) => (
                   <option key={curso.id} value={curso.id}>
-                    {curso.nombre} Seccion {curso.seccion}
+                    {curso.nombre} - Sección {curso.seccion}
                   </option>
                 ))}
               </select>
             </div>
           )}
 
+          {/* Selector dinámico: Catedrático */}
           {formData.tipo === "catedratico" && (
             <div style={styles.inputGroup}>
-              <label style={styles.label}>Catedrático</label>
+              <label style={styles.label}>Selecciona un Catedrático</label>
               <select
                 name="referente"
                 value={formData.referente}
@@ -176,9 +215,7 @@ const NewPublication = () => {
             </div>
           )}
 
-          
-          
-
+          {/* Botones de acción */}
           <div style={styles.actions}>
             <button type="submit" style={styles.submitButton}>
               Publicar
@@ -197,6 +234,7 @@ const NewPublication = () => {
   );
 };
 
+// Estilos (mantenidos desde tu versión)
 const styles = {
   container: {
     minHeight: "100vh",
@@ -275,6 +313,15 @@ const styles = {
     fontWeight: "600",
     fontSize: "16px",
     transition: "background-color 0.3s",
+  },
+  userInfo: {
+    backgroundColor: "#e9ecef",
+    padding: "15px",
+    borderRadius: "8px",
+    marginBottom: "20px",
+    borderLeft: "4px solid #40916c",
+    textAlign: "center",
+    fontWeight: "500",
   },
 };
 

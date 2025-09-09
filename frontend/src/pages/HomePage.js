@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
+import PubDetail from './PubDetail';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -29,14 +30,15 @@ const HomePage = () => {
       })
       .catch(error => console.error('Error al obtener los cursos:', error));
   }, []);
+
   useEffect(() => {
     fetch('http://localhost:3001/getpublicaciones') 
-    .then(response => response.json())
-    .then(data => {
-      console.log('Publicaciones obtenidas:', data);
-      setPublicaciones(data);
-    })
-    .catch(error => console.error('Error al obtener las publicaciones:', error));
+      .then(response => response.json())
+      .then(data => {
+        console.log('Publicaciones obtenidas:', data);
+        setPublicaciones(data);
+      })
+      .catch(error => console.error('Error al obtener las publicaciones:', error));
   }, []);
 
   return (
@@ -128,13 +130,26 @@ const HomePage = () => {
                     <em>{publicacion.mensaje}</em>
                   </p>
                   <div style={styles.postFooter}>
-                    <span style={styles.postUser}>Usuario: @{publicacion.usuario?.nombres || 'Usuario'}</span>
-                    <span style={styles.postDate}>Fecha: {publicacion.fecha}</span>
+                    <span style={styles.postUser}>
+                      👤 Usuario: @{publicacion.usuario?.nombres || 'Anónimo'}
+                    </span>
+                    <span style={styles.postDate}>
+                       {new Date(publicacion.fecha_creacion).toLocaleDateString()}
+                    </span>
                   </div>
+
+                  <button
+                    onClick={() => navigate(`/publicacion/${publicacion.id}`)}
+                    style={styles.verDetallesButton}
+                  >
+                    💬 Ver comentarios ({publicacion.comentarios?.length || 0})
+                  </button>
                 </div>
               ))
             ) : (
-              <p style={styles.noPosts}>No hay publicaciones aún. Sé el primero en crear una.</p>
+              <p style={styles.noPosts}>
+                No hay publicaciones aún. Sé el primero en crear una. ✨
+              </p>
             )}
           </div>
         </main>
@@ -143,25 +158,40 @@ const HomePage = () => {
   );
 };
 
+
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundColor: '#d8f3dc',
+    backgroundColor: '#eff9f0ff',//fondo de toda la app
     fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
     margin: 0,
     padding: 0,
   },
+  verDetallesButton: {
+    background: '#1b159796', 
+    color: 'white',
+    border: 'none',
+    padding: '7px 60px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    marginTop: '15px',
+    fontSize: '14px',
+    fontWeight: 'bold',
+    transition: 'background 0.3s'
+  },
+
   header: {
     backgroundColor: '#2d6a4f',
     color: 'white',
     height: '80px',
-    padding: '16px 40px',
+    padding: '0 40px', 
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    //eslint-disable-next-line
-    padding: '0 40px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    position: 'sticky', 
+    top: 0,             
+    zIndex: 1000,       
   },
   logo: {
     fontSize: '28px',
@@ -198,17 +228,18 @@ const styles = {
     gap: '30px',
     marginTop: '20px',
   },
-  sidebar: {
+   sidebar: {
     width: '280px',
     backgroundColor: '#c3e7d3ff',
-    color: '#2d6a4f',
-    padding: '24px 16px',
-    minHeight: 'calc(100vh - 80px)',
-    borderRadius: '0px',
-    boxShadow: 'none',
+    color: 'white',
+    padding: '20px 16px',
     position: 'fixed',
-    top: '80px',
-    left: 0,
+    top: '80px',   // se pega justo debajo del header
+    left: 0,       // pegado al borde izquierdo
+    bottom: 0,     // se estira hasta el final de la pantalla
+    overflowY: 'auto', // si hay muchos filtros, solo el sidebar scrollea
+    zIndex: 9,     // un nivel debajo del header
+    borderRight: 'none'
   },
   sidebarTitle: {
     fontSize: '22px',
@@ -307,11 +338,11 @@ const styles = {
     fontWeight: '500',
   },
   noPosts: {
-    textAlign: 'center',
-    color: '#40916c',
+    textAlign: 'end',
+    color: '#086137ff',
     fontStyle: 'italic',
     padding: '20px',
-    backgroundColor: '#95d5b2',
+    backgroundColor: '#eff9f0ff',
     borderRadius: '8px',
   }
 };

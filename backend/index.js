@@ -12,7 +12,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: '0000',
-  database: 'foro',
+  database: 'foro'
 });
 
 app.post('/create', (req, res) => {
@@ -53,7 +53,17 @@ app.post('/login', (req, res) => {
       return res.status(500).json({ error: 'Error al autenticar el usuario' });
     }
     if (results.length > 0) {
-      return res.status(200).json({ message: 'Autenticación exitosa', usuario: results[0] });
+      const usuario = results[0];
+      return res.status(200).json({ message: 'Autenticación exitosa', 
+        usuario: {
+            id: usuario.id,
+            carnet: usuario.carnet,
+            nombres: usuario.nombres,
+            apellidos: usuario.apellidos,
+            correo: usuario.correo
+          }
+      });
+      
     } else {
       return res.status(401).json({ message: 'Carnet o contraseña incorrectos' });
     }
@@ -82,17 +92,50 @@ app.post('/login', (req, res) => {
   });
 });
 
-  app.post('/publicaciones', (req, res) => {
-  const { titulo, mensaje, tipo, referente, fecha } = req.body;
-  db.query('INSERT INTO publicacion (titulo, mensaje, tipo, referente, fecha) VALUES (?, ?, ?, ?, ?)', [titulo, mensaje, tipo, referente, fecha], (err, result) => {
+app.post('/publicaciones', (req, res) => {
+  const {
+    titulo,
+    mensaje,
+    usu_carnet,
+    cur_id,
+    cat_id
+  } = req.body;
+
+  // Validaciones
+  if (!titulo || !mensaje || !usu_carnet) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios: titulo, mensaje, usu_carnet' });
+  }
+
+  if (!cur_id && !cat_id) {
+    return res.status(400).json({ error: 'Debe seleccionar un curso o catedrático' });
+  }
+
+  if (cur_id && cat_id) {
+    return res.status(400).json({ error: 'No puede seleccionar un curso y un catedrático a la vez' });
+  }
+
+  // ✅ Query CORRECTO para tu tabla
+  const query = `
+    INSERT INTO publicacion (titulo, mensaje, usu_carnet, cur_id, cat_id)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+
+  db.query(query, [titulo, mensaje, usu_carnet, cur_id, cat_id], (err, result) => {
     if (err) {
-      console.error('Error al guardar la publicación:', err);
-      res.status(500).json({ error: 'Error al guardar la publicación' });
-    } else {
-      res.send(result);
+      console.error('Error SQL:', err);
+      return res.status(500).json({ 
+        error: 'Error al crear la publicación',
+        details: err.message 
+      });
     }
+    
+    res.status(201).json({ 
+      message: 'Publicación creada exitosamente', 
+      id: result.insertId 
+    });
   });
 });
+
 app.get('/getpublicaciones', (req, res) => {
   db.query('SELECT * FROM publicacion', (err, result) => {
     if (err) {
