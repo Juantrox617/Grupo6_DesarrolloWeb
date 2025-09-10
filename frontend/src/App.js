@@ -23,8 +23,8 @@ function App() {
         <Route path="/profiles" element={<Profiles />} />
         <Route path="/crear-publicacion" element={<NewPublication />} />
         <Route path="/publicacion/:id" element={<PubDetail />} />
-        <Route path="/SobreNosotros" element={<PubDetail />} />
-        <Route path="SobreNosotros" element={<SobreNosotros />} />
+        <Route path="/SobreNosotros" element={<SobreNosotros />} />
+        
       </Routes>
     </div>
   );
