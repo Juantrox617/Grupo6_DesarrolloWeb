@@ -29,13 +29,8 @@ function Header() {
           style={styles.navLink}
         >
           Perfiles
-        </a>
-        <a
-          href="/about-us"
-          onClick={(e) => { e.preventDefault(); navigate('/about-us'); }}
-          style={styles.navLink}
-        >
-          Sobre Nosotros
+        
+         
         </a>
         <button
           onClick={() => {
