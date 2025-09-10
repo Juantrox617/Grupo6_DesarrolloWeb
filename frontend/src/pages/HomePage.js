@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
+import '../styles/CreatePostButton.css';
 import PubDetail from './PubDetail';
-import Header from '../components/Header';
 
 
 const HomePage = () => {
@@ -202,7 +202,7 @@ const HomePage = () => {
           <div style={styles.createPostContainer}>
             <button
               onClick={() => navigate('/crear-publicacion')}
-              style={styles.createPostButton}
+              className="create-post-animated"
             >
               + Crear publicación
             </button>
@@ -411,7 +411,7 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '16px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    boxShadow: '0 2px 6px rgba(255, 255, 255, 0.1)',
     transition: 'background-color 0.3s'
   },
   postList: {
@@ -426,6 +426,7 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     color: '#2d6a4f',
     border: '1px solid #eee',
+    transition: 'transform 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
   },
   postText: {
     fontSize: '15px',
