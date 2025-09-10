@@ -120,8 +120,8 @@ const HomePage = () => {
             Perfiles
           </a>
           <a
-          href="/about-us"
-          onClick={(e) => { e.preventDefault(); navigate('/about-us'); }}
+          href="/SobreNosotros"
+          onClick={(e) => { e.preventDefault(); navigate('/SobreNosotros'); }}
           style={styles.navLink}
         >
           Sobre Nosotros
