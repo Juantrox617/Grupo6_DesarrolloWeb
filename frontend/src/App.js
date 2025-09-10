@@ -13,7 +13,7 @@ import AboutUs from './pages/AboutUs';
 
 function App() {
   return (
-    <Router>
+    
       <div className="App">
         <Routes>
           <Route path="/" element={<Login />} />
@@ -27,7 +27,6 @@ function App() {
           <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </div>
-    </Router>
   );
 }
 
