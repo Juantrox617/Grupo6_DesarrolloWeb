@@ -5,7 +5,7 @@ import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
 import '../styles/CreatePostButton.css';
 import PubDetail from './PubDetail';
-import Header from '../components/Header'; 
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -143,84 +143,129 @@ const HomePage = () => {
         <aside style={styles.sidebar}>
           <h2 style={styles.sidebarTitle}> Filtros</h2>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Por Curso</label>
-              <select style={styles.select}>
-                <option value="">Selecciona un curso</option>
-                {cursos.map((curso) => (
-                  <option key={curso.id} value={curso.id}>
-                    {curso.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Por Curso</label>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Por Catedrático</label>
-              <select style={styles.select}>
-                <option value="">Selecciona un catedrático</option>
-                {catedraticos.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select style={styles.select} 
+              value={filtroCurso}
+              onChange={(e) => setFiltroCurso(e.target.value)}
+            >
+              <option value="">Selecciona un curso</option>
+              {cursos.map((curso) => (
+                <option key={curso.id} value={curso.id}>
+                  {curso.nombre} - Sección {curso.seccion}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Buscar por nombre</label>
-              <div className="textInputWrapper">
-                <input placeholder="Buscar por nombre..." type="text" className="textInput" />
-              </div>
-            </div>
+      <div style={styles.inputGroup}>
+          <label style={styles.label}>Por Catedratico</label>
+            <select
+            value={filtroCatedratico}
+            onChange={(e) => setFiltroCatedratico(e.target.value)}
+              style={styles.select}
+      >
+      <option value="">Selecciona un Catedratico</option>
+          {catedraticos.map((cat) => (
 
-            <button style={styles.filterButton}>Aplicar filtros</button>
-          </aside>
+          <option key={cat.id} value={cat.id}>
+          {cat.nombre}
+      </option>
+    ))}
+  </select>
+</div>
 
-          <main style={styles.feed}>
-            <div style={styles.createPostContainer}>
-              <button
-                onClick={() => navigate('/crear-publicacion')}
-                style={styles.createPostButton}
-              >
-                + Crear publicación
-              </button>
-            </div>
+<div style={styles.inputGroup}>
+  <label style={styles.label}>Buscar por nombre</label>
+  <div className="textInputWrapper">
+    <input
+      type="text"
+      placeholder="Buscar por nombre..."
+      value={busquedaNombre}
+      onChange={(e) => setBusquedaNombre(e.target.value)}
+      className="textInput"
+    />
+  </div>
+</div>
+<div style={{display: 'flex', gap: '10px', marginTop:'15px'}}>
+    <button
+      onClick={aplicarFiltros}
+      style={styles.filterButton}
+      >
+      Aplicar filtros
+    </button>
+    <button 
+      onClick={limpiarFiltros}
+      style={{...styles.filterButton, background: '#dc3545'}}
+    >
+      Limpiar Filtro
+    </button>
+  </div>
 
-            <div style={styles.postList}>
-              {publicaciones.length > 0 ? (
-                publicaciones.map((publicacion) => (
-                  <div key={publicacion.id} style={styles.postCard}>
-                    <p style={styles.postText}>
-                      <em>{publicacion.mensaje}</em>
-                    </p>
-                    <div style={styles.postFooter}>
-                      <span style={styles.postUser}>
-                        👤 Usuario: @{publicacion.usuario?.nombres || 'Anónimo'}
-                      </span>
-                      <span style={styles.postDate}>
-                        {new Date(publicacion.fecha_creacion).toLocaleDateString()}
-                      </span>
+        </aside>
+
+        <main style={styles.feed}>
+          <div style={styles.createPostContainer}>
+            <button
+              onClick={() => navigate('/crear-publicacion')}
+              className="create-post-animated"
+            >
+              + Crear publicación
+            </button>
+          </div>
+
+          
+          <div style={styles.postList}>
+            {publicacionesFiltradas.length > 0 ? (
+              publicacionesFiltradas.map((publicacion) => (
+                <div key={publicacion.id} style={styles.postCard}>
+                  {/**titulo de publicacion */}
+                  <h3 style={styles.postTitle}>{publicacion.titulo}</h3>
+                  {/*mensaje de la publicacion */}
+                  <p style={styles.postText}>
+                    <em>{publicacion.mensaje}</em>
+                  </p>
+                {/* Curso o Catedrático */}
+                  {publicacion.curso_nombre && (
+                    <div style={styles.postTarget}>
+                      📚 <strong>Curso:</strong> {publicacion.curso_nombre} - Sección {publicacion.curso_seccion}
                     </div>
+                  )}
+                  {publicacion.catedratico_nombre && (
+                    <div style={styles.postTarget}>
+                      👨‍🏫 <strong>Catedrático:</strong> {publicacion.catedratico_nombre}
+                    </div>
+                  )}
 
-                    <button
-                      onClick={() => navigate(`/publicacion/${publicacion.id}`)}
-                      style={styles.verDetallesButton}
-                    >
-                      💬 Ver comentarios ({publicacion.comentarios?.length || 0})
-                    </button>
+                  {/* Autor y fecha */}
+                  <div style={styles.postFooter}>
+                    <span style={styles.postUser}>
+                      👤 {publicacion.nombres || 'Anónimo'} {publicacion.apellidos || ''}
+                    </span>
+                    <span style={styles.postDate}>
+                       {formatDate(publicacion.hora_creado)}
+                    </span>
                   </div>
-                ))
-              ) : (
-                <p style={styles.noPosts}>
-                  No hay publicaciones aún. Sé el primero en crear una. ✨
-                </p>
-              )}
-            </div>
-          </main>
-        </div>
+                  {/* Botón para ver comentarios*/}
+                  <button
+                    onClick={() => navigate(`/publicacion/${publicacion.id}`)}
+                    style={styles.verDetallesButton}
+                  >
+                    💬 Ver comentarios ({publicacion.total_comentarios || 0})
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p style={styles.noPosts}>
+                   No hay publicaciones que coincidan con los filtros.
+
+              </p>
+            )}
+          </div>
+        </main>
       </div>
-    </>
+    </div>
   );
 };
   
@@ -246,13 +291,55 @@ const styles = {
     transition: 'background 0.3s'
   },
 
+  header: {
+    backgroundColor: '#2d6a4f',
+    color: 'white',
+    height: '80px',
+    padding: '0 40px', 
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    position: 'sticky', 
+    top: 0,             
+    zIndex: 1000,       
+  },
+  logo: {
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#95d5b2',
+  },
+  nav: {
+    display: 'flex',
+    gap: '24px',
+    alignItems: 'center',
+  },
+  navLink: {
+    color: '#95d5b2',
+    textDecoration: 'none',
+    fontSize: '18px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'color 0.3s'
+  },
+  logoutButton: {
+    backgroundColor: '#40916c',
+    color: 'white',
+    border: 'none',
+    padding: '8px 16px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '500',
+    fontSize: '16px',
+    transition: 'background-color 0.3s'
+  },
   main: {
     display: 'flex',
     padding: '20px 40px',
     gap: '30px',
     marginTop: '20px',
   },
-  sidebar: {
+   sidebar: {
     width: '280px',
     backgroundColor: '#c3e7d3ff',
     color: 'white',
