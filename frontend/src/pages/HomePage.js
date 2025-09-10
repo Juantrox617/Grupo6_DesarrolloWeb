@@ -100,12 +100,48 @@ const HomePage = () => {
 
   
   return (
-    <>
-      <Header />
-      <div style={styles.container}>
-        <div style={styles.main}>
-          <aside style={styles.sidebar}>
-            <h2 style={styles.sidebarTitle}> Filtros</h2>
+    <div style={styles.container}>
+      <header style={styles.header}>
+        <img src={logo} alt="Logo Kursum" style={{ width: '250px' }} />
+        <nav style={styles.nav}>
+          <a href="/homepage" style={styles.navLink}>Inicio</a>
+          <a
+            href="/my-profile"
+            onClick={(e) => { e.preventDefault(); navigate('/my-profile'); }}
+            style={styles.navLink}
+          >
+            Mi perfil
+          </a>
+          <a
+            href="/profiles"
+            onClick={(e) => { e.preventDefault(); navigate('/profiles'); }}
+            style={styles.navLink}
+          >
+            Perfiles
+          </a>
+          <a
+          href="/SobreNosotros"
+          onClick={(e) => { e.preventDefault(); navigate('/SobreNosotros'); }}
+          style={styles.navLink}
+        >
+          Sobre Nosotros
+        </a>
+          <button
+            onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              navigate('/');
+            }}
+            style={styles.logoutButton}
+          >
+            Cerrar sesión
+          </button>
+        </nav>
+      </header>
+
+      <div style={styles.main}>
+        <aside style={styles.sidebar}>
+          <h2 style={styles.sidebarTitle}> Filtros</h2>
 
             <div style={styles.inputGroup}>
               <label style={styles.label}>Por Curso</label>
