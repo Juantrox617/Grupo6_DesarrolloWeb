@@ -1,7 +1,6 @@
-
 const express = require('express');
 const app = express();
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
 app.use(cors());
 app.use(express.json());
@@ -137,7 +136,6 @@ app.post('/publicaciones', (req, res) => {
 });
 
 app.get('/getpublicaciones', (req, res) => {
-
   const query = `
     SELECT 
       p.id,
@@ -150,7 +148,9 @@ app.get('/getpublicaciones', (req, res) => {
       u.nombres,
       u.apellidos,
       c.nombre as curso_nombre,
-      cat.nombre as catedratico_nombre
+      c.seccion as curso_seccion,
+      cat.nombre as catedratico_nombre,
+      (SELECT COUNT(*) FROM comentario WHERE pub_id = p.id) as total_comentarios
     FROM publicacion p
     LEFT JOIN usuario u ON p.usu_carnet = u.carnet
     LEFT JOIN curso c ON p.cur_id = c.id
@@ -158,18 +158,193 @@ app.get('/getpublicaciones', (req, res) => {
     ORDER BY p.hora_creado DESC;
   `;
 
-  db.query(query, (err, result) => {
+  db.query(query, (err, results) => {
     if (err) {
-      console.error('Error al obtener la publicación:', err);
-      res.status(500).json({ error: 'Error al obtener la publicaciónes' });
-    } 
-    res.json(result);
+      console.error('Error al obtener publicaciones:', err);
+      return res.status(500).json({ error: 'Error al obtener publicaciones' });
+    }
+    res.json(results);
   });
 });
-  
+
+  app.get('/comentarios/:id_publicacion', (req, res) => {
+  const id_publicacion = req.params.id_publicacion;
+
+  //  Validar que id_publicacion sea un número válido
+  if (!id_publicacion || isNaN(id_publicacion)) {
+    return res.status(400).json({ error: 'ID de publicación inválido' });
+  }
+
+  const query = `
+    SELECT 
+      c.id,
+      c.mensaje,
+      c.hora_creado,
+      c.usu_carnet,
+      u.nombres,
+      u.apellidos
+    FROM comentario c
+    LEFT JOIN usuario u ON c.usu_carnet = u.carnet
+    WHERE c.pub_id = ?
+    ORDER BY c.hora_creado ASC;
+  `;
+
+  db.query(query, [id_publicacion], (err, results) => {
+    if (err) {
+      console.error('Error al obtener comentarios:', err);
+      return res.status(500).json({ error: 'Error al obtener comentarios' });
+    }
+    
+    // ✅ Devuelve un array (aunque esté vacío)
+    res.json(results);
+  });
+});
+
+
+
+  // POST /comentarios
+app.post('/comentarios', (req, res) => {
+  const { mensaje, usu_carnet, pub_id } = req.body;
+
+  if (!mensaje || !usu_carnet || !pub_id) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
+
+  const query = `
+    INSERT INTO comentario (mensaje, usu_carnet, pub_id)
+    VALUES (?, ?, ?)
+  `;
+
+  db.query(query, [mensaje, usu_carnet, pub_id], (err, result) => {
+    if (err) {
+      console.error('Error al crear comentario:', err);
+      return res.status(500).json({ error: 'Error al crear comentario' });
+    }
+    res.status(201).json({ message: 'Comentario creado', id: result.insertId });
+  });
+});
+
+// post /auth/forgot-password
+app.post('/auth/forgot-password', (req, res) => {
+  const { registro_academico, correo } = req.body;
+
+  // Validar que se recibieron los campos necesarios
+  if (!registro_academico || !correo) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
+
+  // Verificar si el registro académico y el correo existen en la base de datos
+  const query = `
+    SELECT carnet FROM usuario WHERE carnet = ? AND correo = ?
+  `;
+  db.query(query, [registro_academico, correo], (err, results) => {
+    if (err) {
+      console.error('Error al verificar usuario:', err);
+      return res.status(500).json({ error: 'Error al verificar usuario' });
+    }
+
+    if (results.length > 0) {
+        res.json({ message: 'usuario verificado' });
+    }else{
+      res.status(404).json({ error: 'Registro académico o correo incorrectos' });
+    }
+
+  });
+});
+
+// PUT /auth/reset-password
+app.put('/auth/reset-password', (req, res) => {
+  const { registro_academico, new_password } = req.body;
+
+  if (!registro_academico || !new_password) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
+
+  const query = `
+    UPDATE usuario 
+    SET contrasena = ? 
+    WHERE carnet = ?
+  `;
+
+  db.query(query, [new_password, registro_academico], (err, result) => {
+    if (err) {
+      console.error('Error al obtener la publicación:', err);
+      res.status(500).json({ error: 'Error al obtener la publicación' });
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+app.put('/usuario/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  const { nombres, apellidos, correo } = req.body;
+  console.log('Body recibido:', req.body);
+
+  db.query(
+    'UPDATE usuario SET nombres = ?, apellidos = ?, correo = ? WHERE carnet = ?',
+    [nombres, apellidos, correo, carnet],
+    (err, result) => {
+      if (err) {
+        console.error('Error al actualizar el usuario:', err);
+        return res.status(500).json({ error: 'Error al actualizar el usuario' });
+      }
+      res.json({ message: 'Usuario actualizado correctamente', nombres, apellidos, correo });
+    }
+  );
+});
+
+app.post('/aprobados', (req, res) => {
+  const { usu_carnet, cur_id } = req.body;
+  console.log('Body recibido:', req.body);
+  db.query(
+    'INSERT INTO aprobado (usu_carnet, cur_id, hora_aprobado) VALUES (?, ?, NOW( ))',
+    [usu_carnet, cur_id],
+    (err, result) => {
+      if (err) {
+        console.error('Error al agregar curso aprobado:', err);
+        return res.status(500).json({ error: 'Error al agregar curso aprobado' });
+      }
+      res.status(201).json({ message: 'Curso aprobado agregado correctamente', id: result.insertId });
+    }
+  );
+});
+app.get('/aprobados/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  db.query(
+    `SELECT c.id, c.codigo, c.nombre, c.creditos
+     FROM aprobado a
+     JOIN curso c ON a.cur_id = c.id
+     WHERE a.usu_carnet = ?`,
+    [carnet],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error al obtener cursos aprobados' });
+      }
+      res.json(result);
+    }
+  );
+});
+
+app.get('/usuario/:carnet', (req, res) => {
+  const carnet = req.params.carnet;
+  db.query('SELECT * FROM usuario WHERE carnet = ?', [carnet], (err, result) => {
+    if (err) {
+      console.error('Error al obtener el usuario:', err);
+      return res.status(500).json({ error: 'Error al obtener el usuario' });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(result[0]);
+  });
+});
+
 app.listen(3001, () => {
   console.log('Servidor corriendo en http://localhost:3001');
 });
+
+
 
 
 

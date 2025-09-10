@@ -6,42 +6,40 @@ import api from '../services/api';
 
 function Profiles() {
   const navigate = useNavigate();
-  const [searchId, setSearchId] = useState('');
-  const [profile, setProfile] = useState(null);
+ 
   const [cursosAprobados, setCursosAprobados] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [busquedaCarnet, setBusquedaCarnet] = useState('');
+  const [perfilBuscado, setPerfilBuscado] = useState(null);
 
-  const handleSearch = async () => {
-    if (!searchId.trim()) {
-      setError('Por favor ingresa un número de registro académico.');
-      return;
-    }
+ const buscarPerfil = async () => {
+  setError('');
+  setCursosAprobados([]);
+  setPerfilBuscado(null);
+  setLoading(true);
+  try {
+    // Buscar usuario por carnet
+    const res = await api.get(`/usuario/${busquedaCarnet}`);
+    setPerfilBuscado(res.data);
 
-    setLoading(true);
-    setError('');
-    setProfile(null);
+    // Buscar cursos aprobados por carnet
+    const cursosRes = await api.get(`/aprobados/${busquedaCarnet}`);
+    setCursosAprobados(cursosRes.data);
+  } catch (error) {
+    setPerfilBuscado(null);
     setCursosAprobados([]);
-
-    try {
-      // Buscar usuario por registro académico
-      const userRes = await api.get(`/usuarios/${searchId}`);
-      setProfile(userRes.data);
-
-      // Obtener cursos aprobados del usuario
-      const cursosRes = await api.get(`/usuarios/${searchId}/cursos-aprobados`);
-      setCursosAprobados(cursosRes.data);
-    } catch (error) {
-      console.error('Error al buscar perfil:', error);
-      if (error.response?.status === 404) {
-        setError('Usuario no encontrado.');
-      } else {
-        setError('Error al conectar con el servidor.');
-      }
-    } finally {
-      setLoading(false);
+    if (error.response?.status === 404) {
+      setError('Usuario no encontrado.');
+    } else {
+      setError('Error al conectar con el servidor.');
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
+
+  
 
   const totalCreditos = cursosAprobados.reduce((sum, curso) => sum + curso.creditos, 0);
 
@@ -59,15 +57,15 @@ function Profiles() {
               <div className="textInputWrapper" style={{ width: '100%' }}>
                 <input
                   placeholder="Ej: 202400023"
-                  value={searchId}
-                  onChange={(e) => setSearchId(e.target.value)}
+                  value={busquedaCarnet}
+                  onChange={(e) => setBusquedaCarnet(e.target.value)}
                   className="textInput"
                   disabled={loading}
                 />
               </div>
             </div>
 
-            <button onClick={handleSearch} style={styles.button} disabled={loading}>
+            <button onClick={buscarPerfil} style={styles.button} disabled={loading}>
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
@@ -76,17 +74,17 @@ function Profiles() {
           {error && <p style={styles.error}>{error}</p>}
 
           {/* Resultado del perfil */}
-          {profile && (
+          {perfilBuscado && (
             <div style={styles.profileSection}>
               <h3 style={styles.sectionTitle}>
-                Perfil de {profile.nombres} {profile.apellidos}
+                Perfil de {perfilBuscado.nombres} {perfilBuscado.apellidos}
               </h3>
 
               <div style={styles.info}>
-                <strong>Registro Académico:</strong> {profile.registro_academico}
+                <strong>Registro Académico:</strong> {perfilBuscado.registro_academico}
               </div>
               <div style={styles.info}>
-                <strong>Correo:</strong> {profile.correo}
+                <strong>Correo:</strong> {perfilBuscado.correo}
               </div>
 
               <div style={styles.section}>

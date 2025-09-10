@@ -1,28 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
 const PubDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [comentario, setComentario] = useState('');
+  const { usuarioLogueado } = useAuth();
+
   const [publicacion, setPublicacion] = useState(null);
+  const [comentarios, setComentarios] = useState([]);
+  const [nuevoComentario, setNuevoComentario] = useState('');
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  // 📌 DATOS DE PRUEBA - Simulan la respuesta de la API
+  // Formatear fecha para Guatemala
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'Fecha desconocida';
+    const date = new Date(timestamp);
+    return new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Guatemala'
+    }).format(date);
+  };
+
+  // Obtener la publicación
   useEffect(() => {
     const fetchPublicacion = async () => {
       try {
         setCargando(true);
-        const response = await fetch(`http://localhost:3001/publicaciones/${id}`);
+        const response = await fetch('http://localhost:3001/getpublicaciones');
         
         if (!response.ok) {
-          throw new Error('Error al cargar la publicación');
+          throw new Error('Error al cargar las publicaciones');
         }
         
         const data = await response.json();
-        setPublicacion(data);
+        const pub = data.find(p => p.id == id);
+        
+        if (!pub) {
+          throw new Error('Publicación no encontrada');
+        }
+        
+        setPublicacion(pub);
       } catch (error) {
         setError(error.message);
         console.error('Error:', error);
@@ -34,42 +58,75 @@ const PubDetail = () => {
     fetchPublicacion();
   }, [id]);
 
+  // Obtener comentarios cuando se carga la publicación
+  useEffect(() => {
+    if (!id) return;
+    
+    const fetchComentarios = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/comentarios/${id}`);
+        
+        if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Comentarios obtenidos:", data); // ✅ Verifica aquí
+        setComentarios(data);
+      } catch (error) {
+        console.error('Error al cargar comentarios:', error);
+        // No mostramos error, solo continuamos sin comentarios
+         alert('Error al cargar los comentarios. Por favor, inténtalo de nuevo.');
+      }
+    };
+
+    fetchComentarios();
+  }, [id]);
+
+  // Manejar envío de nuevo comentario
   const handleComentarioSubmit = async (e) => {
     e.preventDefault();
-    if (comentario.trim()) {
-      try {
-        // 📌 ENVÍO REAL DEL COMENTARIO - Reemplaza el mock
-        const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:3001/publicaciones/${id}/comentarios`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            texto: comentario
-          })
-        });
 
-        if (!response.ok) {
-          throw new Error('Error al enviar el comentario');
-        }
+    if (!usuarioLogueado) {
+      alert("Debes iniciar sesión para comentar.");
+      return;
+    }
 
-        const nuevoComentario = await response.json();
-        
-        // Actualizar el estado local con el nuevo comentario
-        setPublicacion(prev => ({
-          ...prev,
-          comentarios: [...prev.comentarios, nuevoComentario]
-        }));
+    if (!nuevoComentario.trim()) {
+      alert("El comentario no puede estar vacío.");
+      return;
+    }
 
-        setComentario('');
-        alert('¡Comentario agregado exitosamente!');
+    try {
+      const comentario = {
+        mensaje: nuevoComentario,
+        usu_carnet: usuarioLogueado.carnet,
+        pub_id: id
+      };
 
-      } catch (error) {
-        console.error('Error al enviar comentario:', error);
-        alert('Error al enviar el comentario');
+      const response = await fetch("http://localhost:3001/comentarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(comentario),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al enviar el comentario");
       }
+
+      // Limpiar el campo y recargar comentarios
+      setNuevoComentario('');
+      const updatedResponse = await fetch(`http://localhost:3001/comentarios/${id}`);
+      const updatedData = await updatedResponse.json();
+      setComentarios(updatedData);
+      
+      alert('¡Comentario agregado exitosamente!');
+
+    } catch (error) {
+      console.error('Error al enviar comentario:', error);
+      alert('Error al enviar el comentario');
     }
   };
 
@@ -123,44 +180,51 @@ const PubDetail = () => {
 
         {/* Publicación principal */}
         <div style={styles.publicacion}>
+          <h2 style={styles.titulo}>{publicacion.titulo}</h2>
           <p style={styles.mensaje}>"{publicacion.mensaje}"</p>
           <div style={styles.meta}>
-            <span>👤 Por: @{publicacion.usuario?.nombres}</span>
-            <span>📅 {new Date(publicacion.fecha_creacion).toLocaleDateString()}</span>
+            <span>👤 Por: {publicacion.nombres} {publicacion.apellidos}</span>
+            <span>📅 {formatDate(publicacion.hora_creado)}</span>
           </div>
         </div>
 
         {/* Sección de comentarios */}
         <div style={styles.comentariosSection}>
-          <h3>💬 Comentarios ({publicacion.comentarios?.length || 0})</h3>
+          <h3>💬 Comentarios ({comentarios.length})</h3>
           
           {/* Formulario para comentar */}
-          <form onSubmit={handleComentarioSubmit} style={styles.comentarioForm}>
-            <textarea
-              value={comentario}
-              onChange={(e) => setComentario(e.target.value)}
-              placeholder="Escribe tu comentario aquí..."
-              style={styles.textarea}
-              rows="3"
-              required
-            />
-            <button type="submit" style={styles.submitButton}>
-              ✅ Publicar comentario
-            </button>
-          </form>
+          {usuarioLogueado ? (
+            <form onSubmit={handleComentarioSubmit} style={styles.comentarioForm}>
+              <textarea
+                value={nuevoComentario}
+                onChange={(e) => setNuevoComentario(e.target.value)}
+                placeholder="Escribe tu comentario aquí..."
+                style={styles.textarea}
+                rows="3"
+                required
+              />
+              <button type="submit" style={styles.submitButton}>
+                ✅ Publicar comentario
+              </button>
+            </form>
+          ) : (
+            <p style={styles.loginMessage}>
+              Debes <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>iniciar sesión</a> para comentar.
+            </p>
+          )}
 
           {/* Lista de comentarios */}
           <div style={styles.comentariosList}>
-            {publicacion.comentarios && publicacion.comentarios.length > 0 ? (
-              publicacion.comentarios.map((comentario) => (
+            {comentarios.length > 0 ? (
+              comentarios.map((comentario) => (
                 <div key={comentario.id} style={styles.comentario}>
                   <div style={styles.comentarioHeader}>
-                    <strong>👤 @{comentario.usuario?.nombres}</strong>
+                    <strong>👤 {comentario.nombres} {comentario.apellidos}</strong>
                     <small style={styles.comentarioFecha}>
-                      {new Date(comentario.fecha).toLocaleDateString()}
+                      {formatDate(comentario.hora_creado)}
                     </small>
                   </div>
-                  <p style={styles.comentarioTexto}>{comentario.texto}</p>
+                  <p style={styles.comentarioTexto}>{comentario.mensaje}</p>
                 </div>
               ))
             ) : (
@@ -192,13 +256,18 @@ const styles = {
     cursor: 'pointer',
     marginBottom: '20px',
     fontSize: '16px'
-
   },
   loading: {
     textAlign: 'center',
     padding: '40px',
     fontSize: '18px',
     color: '#666'
+  },
+  error: {
+    textAlign: 'center',
+    padding: '20px',
+    color: '#dc3545',
+    fontSize: '18px'
   },
   publicacion: {
     background: 'white',
@@ -207,6 +276,12 @@ const styles = {
     boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
     marginBottom: '25px',
     borderLeft: '4px solid #00ff66ff'
+  },
+  titulo: {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#2d6a4f',
+    marginBottom: '15px'
   },
   mensaje: {
     fontSize: '20px',
@@ -248,6 +323,12 @@ const styles = {
     cursor: 'pointer',
     fontSize: '16px',
     fontWeight: 'bold'
+  },
+  loginMessage: {
+    textAlign: 'center',
+    color: '#6c757d',
+    marginBottom: '20px',
+    fontSize: '16px'
   },
   comentariosList: {
     marginTop: '20px'

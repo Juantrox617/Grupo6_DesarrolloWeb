@@ -8,34 +8,65 @@ function ForgotPassword() {
   const [registro, setRegistro] = useState('');
   const [correo, setCorreo] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [step, setStep] = useState(1);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
+  /// Verificar registro y correo. 
   const handleVerify = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    
     try {
       await api.post('/auth/forgot-password', { registro_academico: registro, correo });
       setStep(2);
     } catch (error) {
-      alert('Registro o correo incorrectos');
+      setError('Registro o correo electronico incorrectos.');
     }
   };
 
+  /// Cambiar contraseña
   const handleChangePassword = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    //validar que las contraseñas coincidan. 
+    if (newPassword !== confirmPassword) {
+      setError('Las contraseñas no coinciden.');
+      return;
+    }
+    //validar longitud minima
+    if (newPassword.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
     try {
-      await api.put('/auth/reset-password', { registro_academico: registro, new_password: newPassword });
-      alert('Contraseña actualizada');
-      navigate('/');
+      await api.put('/auth/reset-password', { 
+        registro_academico: registro, 
+        new_password: newPassword 
+      });
+      setSuccess('Contraseña actualizada con éxito. Redirigiendo al inicio de sesión...');
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     } catch (error) {
-      alert('Error al actualizar la contraseña');
+      setError('Error al actualizar la contraseña, Intentelo de nuevo.');
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Recuperar Contraseña</h2>
+        <h2 style={styles.title}>
+          {step === 1 ? 'Recuperar Contraseña' : 'Nueva Contraseña'}
+        </h2>
+        {/*Mostrar mensajes de error o éxito */}
+        {error && <div style={styles.errorMessage}>{error}</div>}  
+        {success && <div style={styles.succesMessage}>{success}</div>}
 
         {step === 1 ? (
           <form onSubmit={handleVerify}>
@@ -89,14 +120,29 @@ function ForgotPassword() {
                 />
               </div>
             </div>
+            {/*confirmar contraseña */}
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Confirmar contraseña</label>
+              <div className='group'>
+                <input
+                  type="password"
+                  placeholder='confirmar contraseña'
+                  value={confirmPassword}
+                  onChange={(e)=> setConfirmPassword(e.target.value)}
+                  className="input"
+                  required
+                  />
+              </div>
+            </div>
+
             <button type="submit" className="button-login">
-              Reestablecer
+              Reestablecer Contraseña
             </button>
           </form>
         )}
 
         <p style={styles.text}>
-          <a href="/" style={styles.link}>← Volver al inicio</a>
+          <a href="/" style={styles.link}>← Volver al inicio de sesión</a>
         </p>
       </div>
     </div>

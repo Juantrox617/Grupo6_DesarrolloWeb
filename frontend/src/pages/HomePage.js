@@ -3,57 +3,103 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/Kursum-homepage.png';
 import '../styles/TextInput.css';
+import '../styles/CreatePostButton.css';
 import PubDetail from './PubDetail';
+
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [publicaciones, setPublicaciones] = useState([]);
+  const [publicacionesFiltradas, setPublicacionesFiltradas] = useState([]);
   const [catedraticos, setCatedraticos] = useState([]);
   const [cursos, setCursos] = useState([]);
-
-  //CARGAR CATEDRATICOS. 
+  
+  const [filtroCurso, setFiltroCurso] = useState('');
+  const [filtroCatedratico, setFiltroCatedratico] = useState('');
+  const [busquedaNombre, setBusquedaNombre] = useState('');
+  // Cargar catedráticos
   useEffect(() => {
     fetch('http://localhost:3001/catedraticos')
       .then(response => response.json())
       .then(data => setCatedraticos(data))
-      .catch(error => console.error('Error al obtener los catedráticos:', error));
+      .catch(error => console.error('Error al obtener catedráticos:', error));
   }, []);
 
   //cargar cursos. 
 
+  // Cargar cursos
   useEffect(() => {
     fetch('http://localhost:3001/cursos')
       .then(response => response.json())
-      .then(data => {
-        console.log('Cursos obtenidos:', data);
-        setCursos(data);
-      })
-      .catch(error => console.error('Error al obtener los cursos:', error));
+      .then(data => setCursos(data))
+      .catch(error => console.error('Error al obtener cursos:', error));
   }, []);
-// cargar publicaciones. 
-  useEffect(() => {
-    fetch('http://localhost:3001/getpublicaciones') 
 
+  // Cargar publicaciones
+  useEffect(() => {
+    fetch('http://localhost:3001/getpublicaciones')
       .then(response => response.json())
       .then(data => {
-        console.log('Publicaciones obtenidas:', data);
         setPublicaciones(data);
+        setPublicacionesFiltradas(data); // Inicialmente muestra todas
       })
-      .catch(error => console.error('Error al obtener las publicaciones:', error));
+      .catch(error => console.error('Error al obtener publicaciones:', error));
   }, []);
-  
-   // Formatear fecha
+
+  // Función para aplicar filtros
+  const aplicarFiltros = () => {
+    let publicacionesFiltradas = [...publicaciones];
+
+    // Filtro por curso
+    if (filtroCurso) {
+      publicacionesFiltradas = publicacionesFiltradas.filter(p => p.cur_id === parseInt(filtroCurso));
+    }
+
+    // Filtro por catedrático
+    if (filtroCatedratico) {
+      publicacionesFiltradas = publicacionesFiltradas.filter(p => p.cat_id === parseInt(filtroCatedratico));
+    }
+
+    // Filtro por nombre (texto)
+    if (busquedaNombre.trim()) {
+      const textoBuscado = busquedaNombre.toLowerCase();
+      publicacionesFiltradas = publicacionesFiltradas.filter(p => {
+        return (
+          p.titulo.toLowerCase().includes(textoBuscado) ||
+          p.mensaje.toLowerCase().includes(textoBuscado) ||
+          (p.curso_nombre && p.curso_nombre.toLowerCase().includes(textoBuscado)) ||
+          (p.catedratico_nombre && p.catedratico_nombre.toLowerCase().includes(textoBuscado))
+        );
+      });
+    }
+
+    setPublicacionesFiltradas(publicacionesFiltradas);
+  };
+
+  // Función para limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltroCurso('');
+    setFiltroCatedratico('');
+    setBusquedaNombre('');
+    setPublicacionesFiltradas(publicaciones);
+  };
+
+  // Formatear fecha
   const formatDate = (timestamp) => {
     if (!timestamp) return 'Fecha desconocida';
     const date = new Date(timestamp);
-    return date.toLocaleDateString('es-ES', {
+    return new Intl.DateTimeFormat('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    });
+      minute: '2-digit',
+      timeZone: 'America/Guatemala'
+    }).format(date);
   };
+
+
+
   
   return (
     <div style={styles.container}>
@@ -94,75 +140,121 @@ const HomePage = () => {
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Por Curso</label>
-            <select style={styles.select}>
+
+            <select style={styles.select} 
+              value={filtroCurso}
+              onChange={(e) => setFiltroCurso(e.target.value)}
+            >
               <option value="">Selecciona un curso</option>
               {cursos.map((curso) => (
                 <option key={curso.id} value={curso.id}>
-                  {curso.nombre}
+                  {curso.nombre} - Sección {curso.seccion}
                 </option>
               ))}
             </select>
           </div>
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Por Catedrático</label>
-            <select style={styles.select}>
-              <option value="">Selecciona un catedrático</option>
-              {catedraticos.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div style={styles.inputGroup}>
+          <label style={styles.label}>Por Catedratico</label>
+            <select
+            value={filtroCatedratico}
+            onChange={(e) => setFiltroCatedratico(e.target.value)}
+              style={styles.select}
+      >
+      <option value="">Selecciona un Catedratico</option>
+          {catedraticos.map((cat) => (
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Buscar por nombre</label>
-            <div className="textInputWrapper">
-              <input placeholder="Buscar por nombre..." type="text" className="textInput" />
-            </div>
-          </div>
+          <option key={cat.id} value={cat.id}>
+          {cat.nombre}
+      </option>
+    ))}
+  </select>
+</div>
 
-          <button style={styles.filterButton}>Aplicar filtros</button>
+<div style={styles.inputGroup}>
+  <label style={styles.label}>Buscar por nombre</label>
+  <div className="textInputWrapper">
+    <input
+      type="text"
+      placeholder="Buscar por nombre..."
+      value={busquedaNombre}
+      onChange={(e) => setBusquedaNombre(e.target.value)}
+      className="textInput"
+    />
+  </div>
+</div>
+<div style={{display: 'flex', gap: '10px', marginTop:'15px'}}>
+    <button
+      onClick={aplicarFiltros}
+      style={styles.filterButton}
+      >
+      Aplicar filtros
+    </button>
+    <button 
+      onClick={limpiarFiltros}
+      style={{...styles.filterButton, background: '#dc3545'}}
+    >
+      Limpiar Filtro
+    </button>
+  </div>
+
         </aside>
 
         <main style={styles.feed}>
           <div style={styles.createPostContainer}>
             <button
               onClick={() => navigate('/crear-publicacion')}
-              style={styles.createPostButton}
+              className="create-post-animated"
             >
               + Crear publicación
             </button>
           </div>
 
+          
           <div style={styles.postList}>
-            {publicaciones.length > 0 ? (
-              publicaciones.map((publicacion) => (
+            {publicacionesFiltradas.length > 0 ? (
+              publicacionesFiltradas.map((publicacion) => (
                 <div key={publicacion.id} style={styles.postCard}>
+                  {/**titulo de publicacion */}
+                  <h3 style={styles.postTitle}>{publicacion.titulo}</h3>
+                  {/*mensaje de la publicacion */}
                   <p style={styles.postText}>
                     <em>{publicacion.mensaje}</em>
                   </p>
+                {/* Curso o Catedrático */}
+                  {publicacion.curso_nombre && (
+                    <div style={styles.postTarget}>
+                      📚 <strong>Curso:</strong> {publicacion.curso_nombre} - Sección {publicacion.curso_seccion}
+                    </div>
+                  )}
+                  {publicacion.catedratico_nombre && (
+                    <div style={styles.postTarget}>
+                      👨‍🏫 <strong>Catedrático:</strong> {publicacion.catedratico_nombre}
+                    </div>
+                  )}
+
+                  {/* Autor y fecha */}
                   <div style={styles.postFooter}>
                     <span style={styles.postUser}>
-                      👤 Usuario: @{publicacion.usuario?.nombres || 'Anónimo'}
+                      👤 {publicacion.nombres || 'Anónimo'} {publicacion.apellidos || ''}
                     </span>
                     <span style={styles.postDate}>
-                       {new Date(publicacion.fecha_creacion).toLocaleDateString()}
+                       {formatDate(publicacion.hora_creado)}
                     </span>
                   </div>
-
+                  {/* Botón para ver comentarios*/}
                   <button
                     onClick={() => navigate(`/publicacion/${publicacion.id}`)}
                     style={styles.verDetallesButton}
                   >
-                    💬 Ver comentarios ({publicacion.comentarios?.length || 0})
+                    💬 Ver comentarios ({publicacion.total_comentarios || 0})
                   </button>
                 </div>
               ))
             ) : (
               <p style={styles.noPosts}>
-                No hay publicaciones aún. Sé el primero en crear una. ✨
+                   No hay publicaciones que coincidan con los filtros.
+
               </p>
             )}
           </div>
@@ -171,7 +263,7 @@ const HomePage = () => {
     </div>
   );
 };
-
+  
 
 const styles = {
   container: {
@@ -321,7 +413,7 @@ const styles = {
     cursor: 'pointer',
     fontWeight: '600',
     fontSize: '16px',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+    boxShadow: '0 2px 6px rgba(255, 255, 255, 0.1)',
     transition: 'background-color 0.3s'
   },
   postList: {
@@ -336,6 +428,7 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     color: '#2d6a4f',
     border: '1px solid #eee',
+    transition: 'transform 0.25s cubic-bezier(0.4, 0.2, 0.2, 1)',
   },
   postText: {
     fontSize: '15px',
@@ -358,7 +451,21 @@ const styles = {
     padding: '20px',
     backgroundColor: '#eff9f0ff',
     borderRadius: '8px',
+  },
+  
+  postTarget: {
+  fontSize: '14px',
+  color: '#2d6a4f',
+  fontWeight: '500',
+  marginBottom: '10px',
+  padding: '8px',
+  backgroundColor: '#f0f7f4',
+  borderRadius: '5px',
+  display: 'inline-block',
   }
+  
+  
 };
+  
 
 export default HomePage;
