@@ -121,6 +121,13 @@ const HomePage = () => {
           >
             Perfiles
           </a>
+          <a
+          href="/SobreNosotros"
+          onClick={(e) => { e.preventDefault(); navigate('/SobreNosotros'); }}
+          style={styles.navLink}
+        >
+          Sobre Nosotros
+        </a>
           <button
             onClick={() => {
               localStorage.removeItem('token');
