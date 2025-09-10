@@ -9,6 +9,7 @@ import MyProfile from './pages/MyProfile';
 import Profiles from './pages/Profiles';
 import NewPublication from './pages/NewPublication';
 import PubDetail from './pages/PubDetail';
+import AboutUs from './pages/AboutUs';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/crear-publicacion" element={<NewPublication />} />
           <Route path="/publicacion/:id" element={<PubDetail />} />
+          <Route path="/about-us" element={<AboutUs />} />
         </Routes>
       </div>
     </Router>
