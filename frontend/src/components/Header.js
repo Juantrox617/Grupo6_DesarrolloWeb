@@ -30,6 +30,13 @@ function Header() {
         >
           Perfiles
         </a>
+        <a
+          href="/about-us"
+          onClick={(e) => { e.preventDefault(); navigate('/about-us'); }}
+          style={styles.navLink}
+        >
+          Sobre Nosotros
+        </a>
         <button
           onClick={() => {
             localStorage.removeItem('token');
